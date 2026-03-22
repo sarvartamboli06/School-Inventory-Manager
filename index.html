@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Stationery Inventory & Automated Billing System</title>
+    
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- SheetJS for Excel Uploads -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
+    <!-- QRCode for Payment QR -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+    <!-- UI Styles -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <div id="app">
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <i class="ph ph-books sidebar-logo-icon"></i>
+                <h2>EduBilling</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#/" class="nav-item active"><i class="ph ph-squares-four"></i> Dashboard</a>
+                <a href="#/schools" class="nav-item"><i class="ph ph-buildings"></i> Schools</a>
+                <a href="#/books" class="nav-item"><i class="ph ph-books"></i> Book Lists</a>
+                <a href="#/students" class="nav-item"><i class="ph ph-users"></i> Students</a>
+                <a href="#/inventory" class="nav-item"><i class="ph ph-archive-box"></i> Inventory</a>
+                <a href="#/billing" class="nav-item" id="nav-billing"><i class="ph ph-receipt"></i> Generate Bill</a>
+                <a href="#/invoices" class="nav-item" id="nav-invoices"><i class="ph ph-file-text"></i> Invoices</a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn btn-ghost"><i class="ph ph-sign-out"></i> Logout</button>
+            </div>
+        </aside>
+
+        <div class="main-wrapper">
+            <header id="header" class="header">
+                <div class="header-search">
+                    <i class="ph ph-magnifying-glass"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn"><i class="ph ph-bell"></i></button>
+                    <div class="user-profile">
+                        <img src="https://ui-avatars.com/api/?name=Admin+User&background=0D8ABC&color=fff" alt="Admin">
+                        <span>Admin</span>
+                    </div>
+                </div>
+            </header>
+            
+            <main id="main-content" class="main-content">
+                <!-- Views will be dynamically injected here -->
+            </main>
+        </div>
+    </div>
+
+    <!-- Application Scripts -->
+    <script type="module" src="js/app.js?v=999"></script>
+</body>
+</html>

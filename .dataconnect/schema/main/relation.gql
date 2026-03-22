@@ -1,0 +1,365 @@
+extend type BillingRecord {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "BillingRecord", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `BillingRecord` table.
+  """
+  _count: Int! @fdc_generated(from: "BillingRecord.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `BillingRecord` table where the `date` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  date_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "BillingRecord.date", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `BillingRecord` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "BillingRecord.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `BillingRecord` table where the `studentId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  studentId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "BillingRecord.studentId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `BillingRecord` table where the `totalAmount` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  totalAmount_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "BillingRecord.totalAmount", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `totalAmount` field in the `BillingRecord` table.
+  """
+  totalAmount_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "BillingRecord.totalAmount", purpose: QUERY_SUM)
+  """
+  ✨ Average the `totalAmount` field in the `BillingRecord` table.
+  """
+  totalAmount_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "BillingRecord.totalAmount", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `date` field in the `BillingRecord` table.
+  """
+  date_min: Date @fdc_generated(from: "BillingRecord.date", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `totalAmount` field in the `BillingRecord` table.
+  """
+  totalAmount_min: Float @fdc_generated(from: "BillingRecord.totalAmount", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `date` field in the `BillingRecord` table.
+  """
+  date_max: Date @fdc_generated(from: "BillingRecord.date", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `totalAmount` field in the `BillingRecord` table.
+  """
+  totalAmount_max: Float @fdc_generated(from: "BillingRecord.totalAmount", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "BillingRecord.id", purpose: GLOBAL_ID)
+}
+extend type Book {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "Book", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `Book` table.
+  """
+  _count: Int! @fdc_generated(from: "Book.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Book` table where the `author` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  author_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Book.author", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Book` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Book.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Book` table where the `isbn` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  isbn_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Book.isbn", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Book` table where the `price` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  price_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Book.price", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Book` table where the `stockCount` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stockCount_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Book.stockCount", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Book` table where the `title` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  title_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Book.title", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `price` field in the `Book` table.
+  """
+  price_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Book.price", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `stockCount` field in the `Book` table.
+  """
+  stockCount_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "Book.stockCount", purpose: QUERY_SUM)
+  """
+  ✨ Average the `price` field in the `Book` table.
+  """
+  price_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Book.price", purpose: QUERY_AVG)
+  """
+  ✨ Average the `stockCount` field in the `Book` table.
+  """
+  stockCount_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Book.stockCount", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `price` field in the `Book` table.
+  """
+  price_min: Float @fdc_generated(from: "Book.price", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `stockCount` field in the `Book` table.
+  """
+  stockCount_min: Int @fdc_generated(from: "Book.stockCount", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `price` field in the `Book` table.
+  """
+  price_max: Float @fdc_generated(from: "Book.price", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `stockCount` field in the `Book` table.
+  """
+  stockCount_max: Int @fdc_generated(from: "Book.stockCount", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "Book.id", purpose: GLOBAL_ID)
+}
+extend type StationeryItem {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "StationeryItem", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `StationeryItem` table.
+  """
+  _count: Int! @fdc_generated(from: "StationeryItem.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `StationeryItem` table where the `category` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  category_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "StationeryItem.category", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `StationeryItem` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "StationeryItem.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `StationeryItem` table where the `itemName` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  itemName_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "StationeryItem.itemName", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `StationeryItem` table where the `price` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  price_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "StationeryItem.price", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `StationeryItem` table where the `stockCount` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stockCount_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "StationeryItem.stockCount", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `price` field in the `StationeryItem` table.
+  """
+  price_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "StationeryItem.price", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `stockCount` field in the `StationeryItem` table.
+  """
+  stockCount_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "StationeryItem.stockCount", purpose: QUERY_SUM)
+  """
+  ✨ Average the `price` field in the `StationeryItem` table.
+  """
+  price_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "StationeryItem.price", purpose: QUERY_AVG)
+  """
+  ✨ Average the `stockCount` field in the `StationeryItem` table.
+  """
+  stockCount_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "StationeryItem.stockCount", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `price` field in the `StationeryItem` table.
+  """
+  price_min: Float @fdc_generated(from: "StationeryItem.price", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `stockCount` field in the `StationeryItem` table.
+  """
+  stockCount_min: Int @fdc_generated(from: "StationeryItem.stockCount", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `price` field in the `StationeryItem` table.
+  """
+  price_max: Float @fdc_generated(from: "StationeryItem.price", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `stockCount` field in the `StationeryItem` table.
+  """
+  stockCount_max: Int @fdc_generated(from: "StationeryItem.stockCount", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "StationeryItem.id", purpose: GLOBAL_ID)
+}
+extend type Student {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "Student", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `Student` table.
+  """
+  _count: Int! @fdc_generated(from: "Student.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Student` table where the `email` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  email_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Student.email", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Student` table where the `grade` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  grade_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Student.grade", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Student` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Student.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Student` table where the `name` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  name_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Student.name", purpose: QUERY_COUNT)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "Student.id", purpose: GLOBAL_ID)
+}

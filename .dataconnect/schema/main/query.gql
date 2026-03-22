@@ -1,0 +1,234 @@
+extend type Query {
+  """
+  ✨ Look up a single `BillingRecord` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  billingRecord(
+    """
+    The unique ID of the object.
+    """
+    id: String
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: String_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: BillingRecord_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: BillingRecord_FirstRow
+  ): BillingRecord @fdc_generated(from: "BillingRecord", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `Book` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  book(
+    """
+    The unique ID of the object.
+    """
+    id: String
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: String_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: Book_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Book_FirstRow
+  ): Book @fdc_generated(from: "Book", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `StationeryItem` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  stationeryItem(
+    """
+    The unique ID of the object.
+    """
+    id: String
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: String_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: StationeryItem_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: StationeryItem_FirstRow
+  ): StationeryItem @fdc_generated(from: "StationeryItem", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `Student` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  student(
+    """
+    The unique ID of the object.
+    """
+    id: String
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: String_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: Student_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Student_FirstRow
+  ): Student @fdc_generated(from: "Student", purpose: QUERY_SINGLE)
+  """
+  ✨ List `BillingRecord` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  billingRecords(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: BillingRecord_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [BillingRecord_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: BillingRecord_Having
+  ): [BillingRecord!]! @fdc_generated(from: "BillingRecord", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `Book` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  books(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Book_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Book_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Book_Having
+  ): [Book!]! @fdc_generated(from: "Book", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `StationeryItem` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  stationeryItems(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: StationeryItem_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [StationeryItem_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: StationeryItem_Having
+  ): [StationeryItem!]! @fdc_generated(from: "StationeryItem", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `Student` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  students(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Student_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Student_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Student_Having
+  ): [Student!]! @fdc_generated(from: "Student", purpose: QUERY_MULTIPLE)
+}

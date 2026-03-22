@@ -1,0 +1,490 @@
+extend type Mutation {
+  """
+  ✨ Insert a single `BillingRecord` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  billingRecord_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: BillingRecord_Data!
+  ): BillingRecord_KeyOutput! @fdc_generated(from: "BillingRecord", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `Book` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  book_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Book_Data!
+  ): Book_KeyOutput! @fdc_generated(from: "Book", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `StationeryItem` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  stationeryItem_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: StationeryItem_Data!
+  ): StationeryItem_KeyOutput! @fdc_generated(from: "StationeryItem", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `Student` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  student_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Student_Data!
+  ): Student_KeyOutput! @fdc_generated(from: "Student", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert `BillingRecord` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  billingRecord_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [BillingRecord_Data!]!
+  ): [BillingRecord_KeyOutput!]! @fdc_generated(from: "BillingRecord", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `Book` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  book_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Book_Data!]!
+  ): [Book_KeyOutput!]! @fdc_generated(from: "Book", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `StationeryItem` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  stationeryItem_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [StationeryItem_Data!]!
+  ): [StationeryItem_KeyOutput!]! @fdc_generated(from: "StationeryItem", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `Student` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  student_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Student_Data!]!
+  ): [Student_KeyOutput!]! @fdc_generated(from: "Student", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert or update a single `BillingRecord` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `BillingRecord`.
+  """
+  billingRecord_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: BillingRecord_Data!
+  ): BillingRecord_KeyOutput! @fdc_generated(from: "BillingRecord", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `Book` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Book`.
+  """
+  book_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Book_Data!
+  ): Book_KeyOutput! @fdc_generated(from: "Book", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `StationeryItem` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `StationeryItem`.
+  """
+  stationeryItem_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: StationeryItem_Data!
+  ): StationeryItem_KeyOutput! @fdc_generated(from: "StationeryItem", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `Student` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Student`.
+  """
+  student_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Student_Data!
+  ): Student_KeyOutput! @fdc_generated(from: "Student", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update `BillingRecord` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `BillingRecord`.
+  """
+  billingRecord_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [BillingRecord_Data!]!
+  ): [BillingRecord_KeyOutput!]! @fdc_generated(from: "BillingRecord", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `Book` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Book`.
+  """
+  book_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Book_Data!]!
+  ): [Book_KeyOutput!]! @fdc_generated(from: "Book", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `StationeryItem` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `StationeryItem`.
+  """
+  stationeryItem_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [StationeryItem_Data!]!
+  ): [StationeryItem_KeyOutput!]! @fdc_generated(from: "StationeryItem", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `Student` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Student`.
+  """
+  student_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Student_Data!]!
+  ): [Student_KeyOutput!]! @fdc_generated(from: "Student", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Update a single `BillingRecord` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `BillingRecord` or `null` if not found.
+  """
+  billingRecord_update(
+    """
+    The unique ID of the object.
+    """
+    id: String
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: String_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: BillingRecord_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: BillingRecord_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: BillingRecord_Data!
+  ): BillingRecord_KeyOutput @fdc_generated(from: "BillingRecord", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `Book` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Book` or `null` if not found.
+  """
+  book_update(
+    """
+    The unique ID of the object.
+    """
+    id: String
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: String_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: Book_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Book_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Book_Data!
+  ): Book_KeyOutput @fdc_generated(from: "Book", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `StationeryItem` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `StationeryItem` or `null` if not found.
+  """
+  stationeryItem_update(
+    """
+    The unique ID of the object.
+    """
+    id: String
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: String_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: StationeryItem_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: StationeryItem_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: StationeryItem_Data!
+  ): StationeryItem_KeyOutput @fdc_generated(from: "StationeryItem", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `Student` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Student` or `null` if not found.
+  """
+  student_update(
+    """
+    The unique ID of the object.
+    """
+    id: String
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: String_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: Student_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Student_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Student_Data!
+  ): Student_KeyOutput @fdc_generated(from: "Student", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update `BillingRecord` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  billingRecord_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: BillingRecord_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: BillingRecord_Data!
+  ): Int! @fdc_generated(from: "BillingRecord", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `Book` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  book_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Book_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Book_Data!
+  ): Int! @fdc_generated(from: "Book", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `StationeryItem` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  stationeryItem_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: StationeryItem_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: StationeryItem_Data!
+  ): Int! @fdc_generated(from: "StationeryItem", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `Student` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  student_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Student_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Student_Data!
+  ): Int! @fdc_generated(from: "Student", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Delete a single `BillingRecord` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  billingRecord_delete(
+    """
+    The unique ID of the object.
+    """
+    id: String
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: String_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: BillingRecord_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: BillingRecord_FirstRow
+  ): BillingRecord_KeyOutput @fdc_generated(from: "BillingRecord", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `Book` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  book_delete(
+    """
+    The unique ID of the object.
+    """
+    id: String
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: String_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: Book_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Book_FirstRow
+  ): Book_KeyOutput @fdc_generated(from: "Book", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `StationeryItem` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  stationeryItem_delete(
+    """
+    The unique ID of the object.
+    """
+    id: String
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: String_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: StationeryItem_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: StationeryItem_FirstRow
+  ): StationeryItem_KeyOutput @fdc_generated(from: "StationeryItem", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `Student` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  student_delete(
+    """
+    The unique ID of the object.
+    """
+    id: String
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: String_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: Student_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Student_FirstRow
+  ): Student_KeyOutput @fdc_generated(from: "Student", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete `BillingRecord` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  billingRecord_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: BillingRecord_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "BillingRecord", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `Book` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  book_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Book_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Book", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `StationeryItem` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  stationeryItem_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: StationeryItem_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "StationeryItem", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `Student` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  student_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Student_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Student", purpose: DELETE_MULTIPLE)
+}

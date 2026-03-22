@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - School Billing</title>
+    
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- UI Styles -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .login-box {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box fade-in">
+        <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="color: var(--primary); font-weight: 700; font-size: 2rem;">EduBilling</h1>
+            <p style="color: var(--text-muted);">Please sign in to your account</p>
+        </div>
+
+        <div style="display: none; background: #F1F5F9; padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 24px; font-size: 0.85rem; color: var(--text-muted); text-align: center;">
+            <b style="color: var(--primary);">Quick Test Account:</b><br>
+            Email: <b>admin@school.com</b><br>
+            Pass: <b>admin123</b>
+        </div>
+
+        <form id="login-form" style="display: flex; flex-direction: column; gap: 16px;">
+            <div>
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;">Email Address</label>
+                <input type="email" id="email" required style="width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); outline: none;">
+            </div>
+            <div>
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;">Password</label>
+                <input type="password" id="password" required style="width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); outline: none;">
+            </div>
+            
+            <p id="error-message" style="color: #EF4444; font-size: 0.85rem; text-align: center; height: 16px; margin: 4px 0;"></p>
+
+            <button type="submit" class="btn btn-primary" id="login-btn" style="padding: 14px;">Sign In</button>
+        </form>
+    </div>
+
+    <script type="module" src="js/login.js"></script>
+</body>
+</html>

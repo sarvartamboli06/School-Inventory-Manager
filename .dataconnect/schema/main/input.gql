@@ -1,0 +1,1064 @@
+"""
+✨ `BillingRecord_KeyOutput` returns the primary key fields of table type `BillingRecord`.
+
+It has the same format as `BillingRecord_Key`, but is only used as mutation return value.
+"""
+scalar BillingRecord_KeyOutput
+"""
+✨ `Book_KeyOutput` returns the primary key fields of table type `Book`.
+
+It has the same format as `Book_Key`, but is only used as mutation return value.
+"""
+scalar Book_KeyOutput
+"""
+✨ `StationeryItem_KeyOutput` returns the primary key fields of table type `StationeryItem`.
+
+It has the same format as `StationeryItem_Key`, but is only used as mutation return value.
+"""
+scalar StationeryItem_KeyOutput
+"""
+✨ `Student_KeyOutput` returns the primary key fields of table type `Student`.
+
+It has the same format as `Student_Key`, but is only used as mutation return value.
+"""
+scalar Student_KeyOutput
+"""
+✨ Generated data input type for table 'BillingRecord'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input BillingRecord_Data {
+  """
+  ✨ Generated from Field `BillingRecord`.`id` of type `String!`
+  """
+  id: String
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `BillingRecord`.`id` of type `String!`)
+  """
+  id_expr: String_Expr
+  """
+  ✨ Generated from Field `BillingRecord`.`date` of type `Date!`
+  """
+  date: Date
+  """
+  ✨ `_date` server value variant of `date` (✨ Generated from Field `BillingRecord`.`date` of type `Date!`)
+  """
+  date_date: Date_Relative
+  """
+  ✨ `_expr` server value variant of `date` (✨ Generated from Field `BillingRecord`.`date` of type `Date!`)
+  """
+  date_expr: Date_Expr
+  """
+  ✨ `_update` server value variant of `date` (✨ Generated from Field `BillingRecord`.`date` of type `Date!`)
+  """
+  date_update: [Date_Update!]
+  """
+  ✨ Generated from Field `BillingRecord`.`studentId` of type `String!`
+  """
+  studentId: String
+  """
+  ✨ `_expr` server value variant of `studentId` (✨ Generated from Field `BillingRecord`.`studentId` of type `String!`)
+  """
+  studentId_expr: String_Expr
+  """
+  ✨ Generated from Field `BillingRecord`.`totalAmount` of type `Float!`
+  """
+  totalAmount: Float
+  """
+  ✨ `_expr` server value variant of `totalAmount` (✨ Generated from Field `BillingRecord`.`totalAmount` of type `Float!`)
+  """
+  totalAmount_expr: Float_Expr
+  """
+  ✨ `_update` server value variant of `totalAmount` (✨ Generated from Field `BillingRecord`.`totalAmount` of type `Float!`)
+  """
+  totalAmount_update: [Float_Update!]
+}
+"""
+✨ Generated filter input type for table 'BillingRecord'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input BillingRecord_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [BillingRecord_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: BillingRecord_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [BillingRecord_Filter!]
+  """
+  ✨ Generated from Field `BillingRecord`.`id` of type `String!`
+  """
+  id: String_Filter
+  """
+  ✨ Generated from Field `BillingRecord`.`date` of type `Date!`
+  """
+  date: Date_Filter
+  """
+  ✨ Generated from Field `BillingRecord`.`studentId` of type `String!`
+  """
+  studentId: String_Filter
+  """
+  ✨ Generated from Field `BillingRecord`.`totalAmount` of type `Float!`
+  """
+  totalAmount: Float_Filter
+}
+"""
+✨ Generated first-row input type for table 'BillingRecord'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input BillingRecord_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [BillingRecord_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: BillingRecord_Filter
+}
+"""
+✨ Generated having input type for table 'BillingRecord'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input BillingRecord_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [BillingRecord_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: BillingRecord_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [BillingRecord_Having!]
+  """
+  ✨ Generated from Field `BillingRecord`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `BillingRecord`.`date_count` of type `Int!`
+  """
+  date_count: Int_Filter
+  """
+  ✨ Generated from Field `BillingRecord`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `BillingRecord`.`studentId_count` of type `Int!`
+  """
+  studentId_count: Int_Filter
+  """
+  ✨ Generated from Field `BillingRecord`.`totalAmount_count` of type `Int!`
+  """
+  totalAmount_count: Int_Filter
+  """
+  ✨ Generated from Field `BillingRecord`.`totalAmount_sum` of type `Float`
+  """
+  totalAmount_sum: Float_Filter
+  """
+  ✨ Generated from Field `BillingRecord`.`totalAmount_avg` of type `Float`
+  """
+  totalAmount_avg: Float_Filter
+  """
+  ✨ Generated from Field `BillingRecord`.`date_min` of type `Date`
+  """
+  date_min: Date_Filter
+  """
+  ✨ Generated from Field `BillingRecord`.`totalAmount_min` of type `Float`
+  """
+  totalAmount_min: Float_Filter
+  """
+  ✨ Generated from Field `BillingRecord`.`date_max` of type `Date`
+  """
+  date_max: Date_Filter
+  """
+  ✨ Generated from Field `BillingRecord`.`totalAmount_max` of type `Float`
+  """
+  totalAmount_max: Float_Filter
+}
+"""
+✨ Generated key input type for table 'BillingRecord'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input BillingRecord_Key {
+  """
+  ✨ Generated from Field `BillingRecord`.`id` of type `String!`
+  """
+  id: String
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `BillingRecord`.`id` of type `String!`)
+  """
+  id_expr: String_Expr
+}
+"""
+✨ Generated list filter input type for table 'BillingRecord'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input BillingRecord_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: BillingRecord_Filter
+}
+"""
+✨ Generated order input type for table 'BillingRecord'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input BillingRecord_Order {
+  """
+  ✨ Generated from Field `BillingRecord`.`id` of type `String!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `BillingRecord`.`date` of type `Date!`
+  """
+  date: OrderDirection
+  """
+  ✨ Generated from Field `BillingRecord`.`studentId` of type `String!`
+  """
+  studentId: OrderDirection
+  """
+  ✨ Generated from Field `BillingRecord`.`totalAmount` of type `Float!`
+  """
+  totalAmount: OrderDirection
+  """
+  ✨ Generated from Field `BillingRecord`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `BillingRecord`.`date_count` of type `Int!`
+  """
+  date_count: OrderDirection
+  """
+  ✨ Generated from Field `BillingRecord`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `BillingRecord`.`studentId_count` of type `Int!`
+  """
+  studentId_count: OrderDirection
+  """
+  ✨ Generated from Field `BillingRecord`.`totalAmount_count` of type `Int!`
+  """
+  totalAmount_count: OrderDirection
+  """
+  ✨ Generated from Field `BillingRecord`.`totalAmount_sum` of type `Float`
+  """
+  totalAmount_sum: OrderDirection
+  """
+  ✨ Generated from Field `BillingRecord`.`totalAmount_avg` of type `Float`
+  """
+  totalAmount_avg: OrderDirection
+  """
+  ✨ Generated from Field `BillingRecord`.`date_min` of type `Date`
+  """
+  date_min: OrderDirection
+  """
+  ✨ Generated from Field `BillingRecord`.`totalAmount_min` of type `Float`
+  """
+  totalAmount_min: OrderDirection
+  """
+  ✨ Generated from Field `BillingRecord`.`date_max` of type `Date`
+  """
+  date_max: OrderDirection
+  """
+  ✨ Generated from Field `BillingRecord`.`totalAmount_max` of type `Float`
+  """
+  totalAmount_max: OrderDirection
+}
+"""
+✨ Generated data input type for table 'Book'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input Book_Data {
+  """
+  ✨ Generated from Field `Book`.`id` of type `String!`
+  """
+  id: String
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Book`.`id` of type `String!`)
+  """
+  id_expr: String_Expr
+  """
+  ✨ Generated from Field `Book`.`author` of type `String!`
+  """
+  author: String
+  """
+  ✨ `_expr` server value variant of `author` (✨ Generated from Field `Book`.`author` of type `String!`)
+  """
+  author_expr: String_Expr
+  """
+  ✨ Generated from Field `Book`.`isbn` of type `String!`
+  """
+  isbn: String
+  """
+  ✨ `_expr` server value variant of `isbn` (✨ Generated from Field `Book`.`isbn` of type `String!`)
+  """
+  isbn_expr: String_Expr
+  """
+  ✨ Generated from Field `Book`.`price` of type `Float!`
+  """
+  price: Float
+  """
+  ✨ `_expr` server value variant of `price` (✨ Generated from Field `Book`.`price` of type `Float!`)
+  """
+  price_expr: Float_Expr
+  """
+  ✨ `_update` server value variant of `price` (✨ Generated from Field `Book`.`price` of type `Float!`)
+  """
+  price_update: [Float_Update!]
+  """
+  ✨ Generated from Field `Book`.`stockCount` of type `Int!`
+  """
+  stockCount: Int
+  """
+  ✨ `_expr` server value variant of `stockCount` (✨ Generated from Field `Book`.`stockCount` of type `Int!`)
+  """
+  stockCount_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `stockCount` (✨ Generated from Field `Book`.`stockCount` of type `Int!`)
+  """
+  stockCount_update: [Int_Update!]
+  """
+  ✨ Generated from Field `Book`.`title` of type `String!`
+  """
+  title: String
+  """
+  ✨ `_expr` server value variant of `title` (✨ Generated from Field `Book`.`title` of type `String!`)
+  """
+  title_expr: String_Expr
+}
+"""
+✨ Generated filter input type for table 'Book'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Book_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [Book_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: Book_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [Book_Filter!]
+  """
+  ✨ Generated from Field `Book`.`id` of type `String!`
+  """
+  id: String_Filter
+  """
+  ✨ Generated from Field `Book`.`author` of type `String!`
+  """
+  author: String_Filter
+  """
+  ✨ Generated from Field `Book`.`isbn` of type `String!`
+  """
+  isbn: String_Filter
+  """
+  ✨ Generated from Field `Book`.`price` of type `Float!`
+  """
+  price: Float_Filter
+  """
+  ✨ Generated from Field `Book`.`stockCount` of type `Int!`
+  """
+  stockCount: Int_Filter
+  """
+  ✨ Generated from Field `Book`.`title` of type `String!`
+  """
+  title: String_Filter
+}
+"""
+✨ Generated first-row input type for table 'Book'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input Book_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [Book_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: Book_Filter
+}
+"""
+✨ Generated having input type for table 'Book'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Book_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [Book_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: Book_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [Book_Having!]
+  """
+  ✨ Generated from Field `Book`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `Book`.`author_count` of type `Int!`
+  """
+  author_count: Int_Filter
+  """
+  ✨ Generated from Field `Book`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `Book`.`isbn_count` of type `Int!`
+  """
+  isbn_count: Int_Filter
+  """
+  ✨ Generated from Field `Book`.`price_count` of type `Int!`
+  """
+  price_count: Int_Filter
+  """
+  ✨ Generated from Field `Book`.`stockCount_count` of type `Int!`
+  """
+  stockCount_count: Int_Filter
+  """
+  ✨ Generated from Field `Book`.`title_count` of type `Int!`
+  """
+  title_count: Int_Filter
+  """
+  ✨ Generated from Field `Book`.`price_sum` of type `Float`
+  """
+  price_sum: Float_Filter
+  """
+  ✨ Generated from Field `Book`.`stockCount_sum` of type `Int`
+  """
+  stockCount_sum: Int_Filter
+  """
+  ✨ Generated from Field `Book`.`price_avg` of type `Float`
+  """
+  price_avg: Float_Filter
+  """
+  ✨ Generated from Field `Book`.`stockCount_avg` of type `Float`
+  """
+  stockCount_avg: Float_Filter
+  """
+  ✨ Generated from Field `Book`.`price_min` of type `Float`
+  """
+  price_min: Float_Filter
+  """
+  ✨ Generated from Field `Book`.`stockCount_min` of type `Int`
+  """
+  stockCount_min: Int_Filter
+  """
+  ✨ Generated from Field `Book`.`price_max` of type `Float`
+  """
+  price_max: Float_Filter
+  """
+  ✨ Generated from Field `Book`.`stockCount_max` of type `Int`
+  """
+  stockCount_max: Int_Filter
+}
+"""
+✨ Generated key input type for table 'Book'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input Book_Key {
+  """
+  ✨ Generated from Field `Book`.`id` of type `String!`
+  """
+  id: String
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Book`.`id` of type `String!`)
+  """
+  id_expr: String_Expr
+}
+"""
+✨ Generated list filter input type for table 'Book'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input Book_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: Book_Filter
+}
+"""
+✨ Generated order input type for table 'Book'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input Book_Order {
+  """
+  ✨ Generated from Field `Book`.`id` of type `String!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`author` of type `String!`
+  """
+  author: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`isbn` of type `String!`
+  """
+  isbn: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`price` of type `Float!`
+  """
+  price: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`stockCount` of type `Int!`
+  """
+  stockCount: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`title` of type `String!`
+  """
+  title: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`author_count` of type `Int!`
+  """
+  author_count: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`isbn_count` of type `Int!`
+  """
+  isbn_count: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`price_count` of type `Int!`
+  """
+  price_count: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`stockCount_count` of type `Int!`
+  """
+  stockCount_count: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`title_count` of type `Int!`
+  """
+  title_count: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`price_sum` of type `Float`
+  """
+  price_sum: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`stockCount_sum` of type `Int`
+  """
+  stockCount_sum: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`price_avg` of type `Float`
+  """
+  price_avg: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`stockCount_avg` of type `Float`
+  """
+  stockCount_avg: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`price_min` of type `Float`
+  """
+  price_min: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`stockCount_min` of type `Int`
+  """
+  stockCount_min: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`price_max` of type `Float`
+  """
+  price_max: OrderDirection
+  """
+  ✨ Generated from Field `Book`.`stockCount_max` of type `Int`
+  """
+  stockCount_max: OrderDirection
+}
+"""
+✨ Generated data input type for table 'StationeryItem'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input StationeryItem_Data {
+  """
+  ✨ Generated from Field `StationeryItem`.`id` of type `String!`
+  """
+  id: String
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `StationeryItem`.`id` of type `String!`)
+  """
+  id_expr: String_Expr
+  """
+  ✨ Generated from Field `StationeryItem`.`category` of type `String!`
+  """
+  category: String
+  """
+  ✨ `_expr` server value variant of `category` (✨ Generated from Field `StationeryItem`.`category` of type `String!`)
+  """
+  category_expr: String_Expr
+  """
+  ✨ Generated from Field `StationeryItem`.`itemName` of type `String!`
+  """
+  itemName: String
+  """
+  ✨ `_expr` server value variant of `itemName` (✨ Generated from Field `StationeryItem`.`itemName` of type `String!`)
+  """
+  itemName_expr: String_Expr
+  """
+  ✨ Generated from Field `StationeryItem`.`price` of type `Float!`
+  """
+  price: Float
+  """
+  ✨ `_expr` server value variant of `price` (✨ Generated from Field `StationeryItem`.`price` of type `Float!`)
+  """
+  price_expr: Float_Expr
+  """
+  ✨ `_update` server value variant of `price` (✨ Generated from Field `StationeryItem`.`price` of type `Float!`)
+  """
+  price_update: [Float_Update!]
+  """
+  ✨ Generated from Field `StationeryItem`.`stockCount` of type `Int!`
+  """
+  stockCount: Int
+  """
+  ✨ `_expr` server value variant of `stockCount` (✨ Generated from Field `StationeryItem`.`stockCount` of type `Int!`)
+  """
+  stockCount_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `stockCount` (✨ Generated from Field `StationeryItem`.`stockCount` of type `Int!`)
+  """
+  stockCount_update: [Int_Update!]
+}
+"""
+✨ Generated filter input type for table 'StationeryItem'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input StationeryItem_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [StationeryItem_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: StationeryItem_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [StationeryItem_Filter!]
+  """
+  ✨ Generated from Field `StationeryItem`.`id` of type `String!`
+  """
+  id: String_Filter
+  """
+  ✨ Generated from Field `StationeryItem`.`category` of type `String!`
+  """
+  category: String_Filter
+  """
+  ✨ Generated from Field `StationeryItem`.`itemName` of type `String!`
+  """
+  itemName: String_Filter
+  """
+  ✨ Generated from Field `StationeryItem`.`price` of type `Float!`
+  """
+  price: Float_Filter
+  """
+  ✨ Generated from Field `StationeryItem`.`stockCount` of type `Int!`
+  """
+  stockCount: Int_Filter
+}
+"""
+✨ Generated first-row input type for table 'StationeryItem'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input StationeryItem_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [StationeryItem_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: StationeryItem_Filter
+}
+"""
+✨ Generated having input type for table 'StationeryItem'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input StationeryItem_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [StationeryItem_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: StationeryItem_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [StationeryItem_Having!]
+  """
+  ✨ Generated from Field `StationeryItem`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `StationeryItem`.`category_count` of type `Int!`
+  """
+  category_count: Int_Filter
+  """
+  ✨ Generated from Field `StationeryItem`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `StationeryItem`.`itemName_count` of type `Int!`
+  """
+  itemName_count: Int_Filter
+  """
+  ✨ Generated from Field `StationeryItem`.`price_count` of type `Int!`
+  """
+  price_count: Int_Filter
+  """
+  ✨ Generated from Field `StationeryItem`.`stockCount_count` of type `Int!`
+  """
+  stockCount_count: Int_Filter
+  """
+  ✨ Generated from Field `StationeryItem`.`price_sum` of type `Float`
+  """
+  price_sum: Float_Filter
+  """
+  ✨ Generated from Field `StationeryItem`.`stockCount_sum` of type `Int`
+  """
+  stockCount_sum: Int_Filter
+  """
+  ✨ Generated from Field `StationeryItem`.`price_avg` of type `Float`
+  """
+  price_avg: Float_Filter
+  """
+  ✨ Generated from Field `StationeryItem`.`stockCount_avg` of type `Float`
+  """
+  stockCount_avg: Float_Filter
+  """
+  ✨ Generated from Field `StationeryItem`.`price_min` of type `Float`
+  """
+  price_min: Float_Filter
+  """
+  ✨ Generated from Field `StationeryItem`.`stockCount_min` of type `Int`
+  """
+  stockCount_min: Int_Filter
+  """
+  ✨ Generated from Field `StationeryItem`.`price_max` of type `Float`
+  """
+  price_max: Float_Filter
+  """
+  ✨ Generated from Field `StationeryItem`.`stockCount_max` of type `Int`
+  """
+  stockCount_max: Int_Filter
+}
+"""
+✨ Generated key input type for table 'StationeryItem'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input StationeryItem_Key {
+  """
+  ✨ Generated from Field `StationeryItem`.`id` of type `String!`
+  """
+  id: String
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `StationeryItem`.`id` of type `String!`)
+  """
+  id_expr: String_Expr
+}
+"""
+✨ Generated list filter input type for table 'StationeryItem'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input StationeryItem_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: StationeryItem_Filter
+}
+"""
+✨ Generated order input type for table 'StationeryItem'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input StationeryItem_Order {
+  """
+  ✨ Generated from Field `StationeryItem`.`id` of type `String!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`category` of type `String!`
+  """
+  category: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`itemName` of type `String!`
+  """
+  itemName: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`price` of type `Float!`
+  """
+  price: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`stockCount` of type `Int!`
+  """
+  stockCount: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`category_count` of type `Int!`
+  """
+  category_count: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`itemName_count` of type `Int!`
+  """
+  itemName_count: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`price_count` of type `Int!`
+  """
+  price_count: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`stockCount_count` of type `Int!`
+  """
+  stockCount_count: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`price_sum` of type `Float`
+  """
+  price_sum: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`stockCount_sum` of type `Int`
+  """
+  stockCount_sum: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`price_avg` of type `Float`
+  """
+  price_avg: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`stockCount_avg` of type `Float`
+  """
+  stockCount_avg: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`price_min` of type `Float`
+  """
+  price_min: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`stockCount_min` of type `Int`
+  """
+  stockCount_min: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`price_max` of type `Float`
+  """
+  price_max: OrderDirection
+  """
+  ✨ Generated from Field `StationeryItem`.`stockCount_max` of type `Int`
+  """
+  stockCount_max: OrderDirection
+}
+"""
+✨ Generated data input type for table 'Student'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input Student_Data {
+  """
+  ✨ Generated from Field `Student`.`id` of type `String!`
+  """
+  id: String
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Student`.`id` of type `String!`)
+  """
+  id_expr: String_Expr
+  """
+  ✨ Generated from Field `Student`.`email` of type `String`
+  """
+  email: String
+  """
+  ✨ `_expr` server value variant of `email` (✨ Generated from Field `Student`.`email` of type `String`)
+  """
+  email_expr: String_Expr
+  """
+  ✨ Generated from Field `Student`.`grade` of type `String!`
+  """
+  grade: String
+  """
+  ✨ `_expr` server value variant of `grade` (✨ Generated from Field `Student`.`grade` of type `String!`)
+  """
+  grade_expr: String_Expr
+  """
+  ✨ Generated from Field `Student`.`name` of type `String!`
+  """
+  name: String
+  """
+  ✨ `_expr` server value variant of `name` (✨ Generated from Field `Student`.`name` of type `String!`)
+  """
+  name_expr: String_Expr
+}
+"""
+✨ Generated filter input type for table 'Student'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Student_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [Student_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: Student_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [Student_Filter!]
+  """
+  ✨ Generated from Field `Student`.`id` of type `String!`
+  """
+  id: String_Filter
+  """
+  ✨ Generated from Field `Student`.`email` of type `String`
+  """
+  email: String_Filter
+  """
+  ✨ Generated from Field `Student`.`grade` of type `String!`
+  """
+  grade: String_Filter
+  """
+  ✨ Generated from Field `Student`.`name` of type `String!`
+  """
+  name: String_Filter
+}
+"""
+✨ Generated first-row input type for table 'Student'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input Student_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [Student_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: Student_Filter
+}
+"""
+✨ Generated having input type for table 'Student'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Student_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [Student_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: Student_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [Student_Having!]
+  """
+  ✨ Generated from Field `Student`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `Student`.`email_count` of type `Int!`
+  """
+  email_count: Int_Filter
+  """
+  ✨ Generated from Field `Student`.`grade_count` of type `Int!`
+  """
+  grade_count: Int_Filter
+  """
+  ✨ Generated from Field `Student`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `Student`.`name_count` of type `Int!`
+  """
+  name_count: Int_Filter
+}
+"""
+✨ Generated key input type for table 'Student'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input Student_Key {
+  """
+  ✨ Generated from Field `Student`.`id` of type `String!`
+  """
+  id: String
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Student`.`id` of type `String!`)
+  """
+  id_expr: String_Expr
+}
+"""
+✨ Generated list filter input type for table 'Student'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input Student_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: Student_Filter
+}
+"""
+✨ Generated order input type for table 'Student'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input Student_Order {
+  """
+  ✨ Generated from Field `Student`.`id` of type `String!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `Student`.`email` of type `String`
+  """
+  email: OrderDirection
+  """
+  ✨ Generated from Field `Student`.`grade` of type `String!`
+  """
+  grade: OrderDirection
+  """
+  ✨ Generated from Field `Student`.`name` of type `String!`
+  """
+  name: OrderDirection
+  """
+  ✨ Generated from Field `Student`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `Student`.`email_count` of type `Int!`
+  """
+  email_count: OrderDirection
+  """
+  ✨ Generated from Field `Student`.`grade_count` of type `Int!`
+  """
+  grade_count: OrderDirection
+  """
+  ✨ Generated from Field `Student`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `Student`.`name_count` of type `Int!`
+  """
+  name_count: OrderDirection
+}

@@ -1,0 +1,123 @@
+import { supabase } from '../supabase.js';
+
+export async function renderDashboard(container) {
+    container.innerHTML = `
+        <div class="fade-in">
+            <div class="page-header">
+                <h1 class="page-title" style="margin-bottom:0;">Dashboard</h1>
+                <button class="btn btn-primary" onclick="window.location.hash='#/billing'"><i class="ph ph-receipt"></i> New POS Transaction</button>
+            </div>
+            
+            <div id="dashboard-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px;">
+                <div class="card"><div style="text-align:center; padding: 20px;"><i class="ph ph-spinner ph-spin"></i> Loading metrics...</div></div>
+            </div>
+
+            <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 16px;">Recent Transactions</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>Student</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboard-txs">
+                        <tr><td colspan="5" style="text-align:center; padding: 20px;">Fetching recent invoices...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+
+    await loadDashboardStats();
+    await loadRecentTransactions();
+}
+
+async function loadDashboardStats() {
+    const statsContainer = document.getElementById('dashboard-stats');
+    
+    // Run all fetches in parallel
+    const [
+        { count: studentCount, error: e1 },
+        { count: inventoryCount, error: e2 },
+        { data: invoices, error: e3 }
+    ] = await Promise.all([
+        supabase.from('students').select('*', { count: 'exact', head: true }),
+        supabase.from('inventory_items').select('*', { count: 'exact', head: true }),
+        supabase.from('invoices').select('total_amount, status')
+    ]);
+
+    if(e1 || e2 || e3) {
+        statsContainer.innerHTML = `<div style="color:red;">Error loading stats. Check database connection.</div>`;
+        return;
+    }
+
+    const totalRevenue = invoices.filter(inv => inv.status === 'PAID').reduce((sum, inv) => sum + Number(inv.total_amount), 0);
+    const pendingCount = invoices.filter(inv => inv.status === 'PENDING' || inv.status === 'UNPAID').length;
+
+    statsContainer.innerHTML = `
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Total Revenue</span>
+                <div class="icon-btn" style="color: var(--secondary); border:none; background: #DCFCE7;"><i class="ph ph-currency-dollar"></i></div>
+            </div>
+            <h2 style="font-size: 2rem; margin-bottom: 8px;">$${totalRevenue.toFixed(2)}</h2>
+            <p style="color: var(--secondary); font-size: 0.85rem; font-weight: 500;">Lifetime sales</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Unique Inventory</span>
+                <div class="icon-btn" style="color: var(--primary); border:none; background: #E0E7FF;"><i class="ph ph-archive-box"></i></div>
+            </div>
+            <h2 style="font-size: 2rem; margin-bottom: 8px;">${inventoryCount || 0}</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">Item types in catalog</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Active Students</span>
+                <div class="icon-btn" style="color: #8B5CF6; border:none; background: #EDE9FE;"><i class="ph ph-users"></i></div>
+            </div>
+            <h2 style="font-size: 2rem; margin-bottom: 8px;">${studentCount || 0}</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">Enrolled profiles</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Pending Invoices</span>
+                <div class="icon-btn" style="color: #EF4444; border:none; background: #FEE2E2;"><i class="ph ph-receipt"></i></div>
+            </div>
+            <h2 style="font-size: 2rem; margin-bottom: 8px;">${pendingCount}</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">Awaiting payment</p>
+        </div>
+    `;
+}
+
+async function loadRecentTransactions() {
+    const tbody = document.getElementById('dashboard-txs');
+    const { data: invoices, error } = await supabase.from('invoices').select('*, students(first_name, last_name)').order('created_at', { ascending: false }).limit(5);
+
+    if (error) {
+        tbody.innerHTML = `<tr><td colspan="5" style="color:red; text-align:center;">Error: ${error.message}</td></tr>`;
+        return;
+    }
+
+    if (!invoices || invoices.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color: var(--text-muted);">No recent transactions.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = invoices.map(inv => `
+        <tr>
+            <td style="font-weight: 500; font-family: monospace;">#TRX-${inv.id.split('-')[0].toUpperCase()}</td>
+            <td>${inv.students ? inv.students.first_name + ' ' + inv.students.last_name : 'Guest/Deleted'}</td>
+            <td>${new Date(inv.created_at).toLocaleDateString()}</td>
+            <td style="font-weight: 600;">$${Number(inv.total_amount).toFixed(2)}</td>
+            <td><span class="status-badge ${inv.status === 'PAID' ? 'status-success' : 'status-warning'}">${inv.status}</span></td>
+        </tr>
+    `).join('');
+}
