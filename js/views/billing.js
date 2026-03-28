@@ -34,21 +34,10 @@ export async function renderBilling(container) {
                         <button class="btn btn-ghost" id="clear-student-btn" style="color: #EF4444;"><i class="ph ph-x"></i> Clear</button>
                     </div>
 
-                    <div class="table-container" style="box-shadow: none; border: 1px solid var(--border);">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Item</th>
-                                    <th>Price</th>
-                                    <th>Qty</th>
-                                    <th>Total</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody id="cart-tbody">
-                                <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">Cart is empty. Select a student first!</td></tr>
-                            </tbody>
-                        </table>
+                    <div id="cart-container" style="background: white; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px;">
+                        <div id="cart-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 16px;">
+                            <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 24px;">Cart is empty. Select a student first!</div>
+                        </div>
                     </div>
                 </div>
 
@@ -58,34 +47,17 @@ export async function renderBilling(container) {
                     
                     <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.95rem;">
                         <span style="color: var(--text-muted);">Subtotal</span>
-                        <span style="font-weight: 600;" id="summary-subtotal">$0.00</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.95rem;">
-                        <span style="color: var(--text-muted);">Tax (5%)</span>
-                        <span style="font-weight: 600;" id="summary-tax">$0.00</span>
+                        <span style="font-weight: 600;" id="summary-subtotal">₹0.00</span>
                     </div>
                     
                     <div style="border-top: 1px dashed #CBD5E1; padding-top: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
                         <span style="font-size: 1.1rem; font-weight: 600;">Total</span>
-                        <span style="font-size: 1.5rem; font-weight: 700; color: var(--primary);" id="summary-total">$0.00</span>
+                        <span style="font-size: 1.5rem; font-weight: 700; color: var(--primary);" id="summary-total">₹0.00</span>
                     </div>
 
-                    <button class="btn btn-primary" id="open-checkout-modal-btn" style="width: 100%; padding: 14px; font-size: 1.05rem;" disabled><i class="ph ph-receipt"></i> Generate Bill</button>
-                </div>
-            </div>
-
-            <!-- Checkout Modal -->
-            <div id="checkout-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
-                <div class="card fade-in" style="width: 100%; max-width: 450px; padding: 32px; box-shadow: var(--shadow-lg); text-align: center;">
-                    <h2 style="margin-bottom: 8px;">Finalize Bill</h2>
-                    <p style="color: var(--text-muted); margin-bottom: 24px;">For <b id="modal-student-name">Student Name</b></p>
-                    
-                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--primary); margin-bottom: 32px;" id="modal-final-total">$0.00</div>
-
-                    <div style="display: flex; flex-direction: column; gap: 12px;">
-                        <button class="btn btn-primary" id="process-paid-btn" style="padding: 16px; font-size: 1.1rem; background: #10B981; border: none;"><i class="ph ph-money"></i> Mark as PAID & Deduct Stock</button>
-                        <button class="btn btn-secondary" id="process-pending-btn" style="padding: 16px; font-size: 1.1rem;"><i class="ph ph-clock"></i> Save as PENDING (Unpaid)</button>
-                        <button class="btn btn-ghost" id="cancel-checkout-btn" style="margin-top: 8px;">Cancel</button>
+                    <div style="display: flex; gap: 12px; margin-top: 24px;">
+                        <button class="btn btn-secondary" id="save-unpaid-btn" style="flex: 1; padding: 14px; font-size: 1.05rem;" disabled><i class="ph ph-clock"></i> Save UNPAID</button>
+                        <button class="btn btn-primary" id="mark-paid-btn" style="flex: 1; padding: 14px; font-size: 1.05rem; background: #10B981; border: none;" disabled><i class="ph ph-money"></i> Mark PAID</button>
                     </div>
                 </div>
             </div>
@@ -96,35 +68,33 @@ export async function renderBilling(container) {
     let products = [];
     let allStudents = [];
     let activeStudent = null;
-    
+
     // Elements
     const searchInput = document.getElementById('student-search-input');
     const searchResults = document.getElementById('search-results');
     const selectedCard = document.getElementById('selected-student-card');
     const clearStudentBtn = document.getElementById('clear-student-btn');
-    const generateBtn = document.getElementById('open-checkout-modal-btn');
-    const checkoutModal = document.getElementById('checkout-modal');
+    const saveUnpaidBtn = document.getElementById('save-unpaid-btn');
+    const markPaidBtn = document.getElementById('mark-paid-btn');
 
     try {
+        const schoolId = localStorage.getItem('selected_school_id');
         // Fetch base lists natively
-        const [ {data: students}, {data: inventory}, {data: books} ] = await Promise.all([
-            supabase.from('students').select('*'),
-            supabase.from('inventory_items').select('id, item_name, stock_count'),
-            supabase.from('Stationery Details').select('*')
+        const [ {data: students}, {data: inventory} ] = await Promise.all([
+            supabase.from('students').select('*').eq('school_id', schoolId),
+            supabase.from('Stationery Details').select('*').eq('school_id', schoolId)
         ]);
 
         allStudents = students || [];
 
-        // Note: Inventory Price is dynamically assumed 0 or inherited if it had one. We strict to 0 for Set Trackers.
-        if (inventory) products.push(...inventory.map(i => ({...i, type: 'STATIONERY', name: i.item_name, price: 0})));
-        
-        if (books) products.push(...books.map(b => ({
-            id: String(b.id), 
-            type: 'BOOK', 
-            name: b['Book Name'] || 'Unknown', 
-            price: Number(b['Rate'] || 0), 
-            class: String(b['Class'] || '').trim().toUpperCase(),
-            stock_count: 9999
+        // Map exclusively from Stationery Details since it contains the actual unified dataset (Books & Stock)
+        if (inventory) products.push(...inventory.map(i => ({
+            id: String(i.id),
+            type: 'BOOK', // Classifying as BOOK ensures selectStudent auto-populates class lists flawlessly
+            name: i['Book Name'] || i.item_name || 'Unknown Item',
+            price: Number(i['Rate'] || i.Rate || 0),
+            stock_count: Number(i.remaining_stock ?? 100),
+            class: String(i['Class'] || '').trim().toUpperCase()
         })));
 
     } catch(err) {
@@ -187,11 +157,12 @@ export async function renderBilling(container) {
 
         // AUTO-POPULATE THE CART WITH BOOKS FOR THIS CLASS
         cart = [];
-        const targetClass = activeStudent.grade_section.trim().toUpperCase();
+        const normalizeClass = c => String(c || '').trim().toUpperCase().replace(/^CLASS\s*|-/g, '');
+        const targetClass = normalizeClass(activeStudent.grade_section);
         
-        // Gather all individual legacy books
-        const classBooks = products.filter(p => p.type === 'BOOK' && p.class === targetClass);
-        cart.push(...classBooks.map(b => ({ ...b, qty: 1 })));
+        // Gather all individual legacy books aligning on normalized class names
+        const classBooks = products.filter(p => p.type === 'BOOK' && normalizeClass(p.class) === targetClass);
+        cart.push(...classBooks.map(b => ({ ...b, qty: b.required_qty || 1 })));
 
         // We explicitly DO NOT push the Set tracker to the visible cart output here anymore!
         // It gets stealth-injected directly into the Database payload during final generation.
@@ -209,45 +180,95 @@ export async function renderBilling(container) {
         renderCart();
     });
 
+    const getDynamicIcon = (name, type) => {
+        const lower = name.toLowerCase();
+        if (lower.includes('math') || lower.includes('algebra') || lower.includes('calculus')) return 'ph-calculator';
+        if (lower.includes('science') || lower.includes('physics') || lower.includes('chemistry') || lower.includes('biology')) return 'ph-flask';
+        if (lower.includes('history') || lower.includes('geography')) return 'ph-globe-hemisphere-west';
+        if (lower.includes('english') || lower.includes('grammar') || lower.includes('literature')) return 'ph-translate';
+        if (lower.includes('art') || lower.includes('drawing') || lower.includes('color')) return 'ph-palette';
+        if (lower.includes('computer') || lower.includes('code')) return 'ph-desktop';
+        if (lower.includes('music') || lower.includes('song')) return 'ph-music-notes';
+        if (lower.includes('bag') || lower.includes('backpack')) return 'ph-backpack';
+        if (lower.includes('uniform') || lower.includes('shirt') || lower.includes('tie') || lower.includes('belt')) return 'ph-t-shirt';
+        if (lower.includes('notebook') || lower.includes('copy') || lower.includes('diary') || lower.includes('journal')) return 'ph-notebook';
+        if (lower.includes('pencil') || lower.includes('pen') || lower.includes('marker')) return 'ph-pencil-simple';
+        if (lower.includes('ruler') || lower.includes('scale')) return 'ph-ruler';
+        if (lower.includes('eraser') || lower.includes('sharpener')) return 'ph-eraser';
+        
+        return type === 'BOOK' ? 'ph-book-open' : 'ph-package';
+    };
+
     const renderCart = () => {
-        const tbody = document.getElementById('cart-tbody');
+        const grid = document.getElementById('cart-grid');
         if (cart.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">Cart is empty. Make sure the Class matches exactly!</td></tr>';
+            grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 24px;">Cart is empty. Make sure the Class matches exactly!</div>';
             updateTotals(0);
             return;
         }
 
-        tbody.innerHTML = cart.map((item, index) => `
-            <tr>
-                <td style="font-weight: 500;">${item.name}<br><small style="color:var(--text-muted);">${item.type}</small></td>
-                <td>$${Number(item.price).toFixed(2)}</td>
-                <td>
-                    <input type="number" class="qty-input" data-index="${index}" value="${item.qty}" min="1" max="${item.stock_count}" style="width: 60px; padding: 4px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm);">
-                </td>
-                <td style="font-weight: 600;">$${(item.price * item.qty).toFixed(2)}</td>
-                <td><button class="icon-btn remove-cart-btn" data-index="${index}" style="width: 32px; height: 32px; color: #EF4444; border:none; background:transparent;"><i class="ph ph-trash"></i></button></td>
-            </tr>
-        `).join('');
+        grid.innerHTML = cart.map((item, index) => {
+            const disableMinus = item.qty <= 0;
+            const disablePlus = item.qty >= item.stock_count;
+            const iconClass = getDynamicIcon(item.name, item.type);
+
+            return `
+            <div style="display: flex; flex-direction: column; align-items: center; padding: 16px 12px; border: 1px solid #E2E8F0; border-radius: 8px; background: white; text-align: center; position: relative;">
+                <!-- Icon -->
+                <div style="font-size: 2rem; color: var(--primary); background: #EEF2FF; width: 48px; height: 48px; min-height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; margin-top: 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
+                    <i class="ph ${iconClass}"></i>
+                </div>
+                
+                <!-- Name -->
+                <div style="font-weight: 700; color: #1E293B; font-size: 0.85rem; margin-bottom: 4px; line-height: 1.2;">
+                    ${item.name}
+                </div>
+                
+                <!-- Price -->
+                <div style="color: #10B981; font-weight: 600; font-size: 0.75rem; margin-bottom: 16px;">
+                    ₹${Number(item.price).toFixed(2)}
+                </div>
+                
+                <!-- Quantity Control -->
+                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; border: 1px solid #E2E8F0; border-radius: 20px; padding: 2px 6px; margin-top: auto; background: white;">
+                    <button type="button" class="icon-btn minus-btn" data-index="${index}" style="width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; color:${disableMinus ? '#CBD5E1' : '#64748B'}; cursor:${disableMinus ? 'not-allowed' : 'pointer'};" ${disableMinus ? 'disabled' : ''}>
+                        <i class="ph ph-minus"></i>
+                    </button>
+                    <span style="font-weight: 700; font-size: 0.85rem; color: #1E293B; min-width: 20px;">${item.qty}</span>
+                    <button type="button" class="icon-btn plus-btn" data-index="${index}" style="width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; color:${disablePlus ? '#CBD5E1' : '#64748B'}; cursor:${disablePlus ? 'not-allowed' : 'pointer'};" ${disablePlus ? 'disabled' : ''}>
+                        <i class="ph ph-plus"></i>
+                    </button>
+                </div>
+            </div>
+        `}).join('');
 
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
         updateTotals(subtotal);
 
-        document.querySelectorAll('.qty-input').forEach(input => {
-            input.addEventListener('change', (e) => {
-                const idx = e.target.getAttribute('data-index');
-                let newQty = parseInt(e.target.value, 10);
-                if (newQty > cart[idx].stock_count) {
+        document.querySelectorAll('.minus-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(e.currentTarget.getAttribute('data-index'), 10);
+                if (cart[idx].qty <= 0) return;
+                cart[idx].qty -= 1;
+                renderCart();
+            });
+        });
+
+        document.querySelectorAll('.plus-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(e.currentTarget.getAttribute('data-index'), 10);
+                if (cart[idx].qty >= cart[idx].stock_count) {
                     alert('Cannot exceed available stock physical quantity.');
-                    newQty = cart[idx].stock_count;
+                    return;
                 }
-                cart[idx].qty = newQty;
+                cart[idx].qty += 1;
                 renderCart();
             });
         });
 
         document.querySelectorAll('.remove-cart-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const idx = e.currentTarget.getAttribute('data-index');
+                const idx = parseInt(e.currentTarget.getAttribute('data-index'), 10);
                 cart.splice(idx, 1);
                 renderCart();
             });
@@ -255,53 +276,41 @@ export async function renderBilling(container) {
     };
 
     function updateTotals(subtotal) {
-        const tax = subtotal * 0.05;
-        const total = subtotal + tax;
-        document.getElementById('summary-subtotal').innerText = '$' + subtotal.toFixed(2);
-        document.getElementById('summary-tax').innerText = '$' + tax.toFixed(2);
-        document.getElementById('summary-total').innerText = '$' + total.toFixed(2);
+        document.getElementById('summary-subtotal').innerText = '₹' + subtotal.toFixed(2);
+        document.getElementById('summary-total').innerText = '₹' + subtotal.toFixed(2);
         
-        generateBtn.disabled = cart.length === 0 || !activeStudent;
+        const disabled = cart.length === 0 || !activeStudent;
+        saveUnpaidBtn.disabled = disabled;
+        markPaidBtn.disabled = disabled;
     };
 
-    // OPEN CHECKOUT MODAL
-    generateBtn.addEventListener('click', () => {
+    async function processCheckout(statusLabel) {
         if(!activeStudent || cart.length === 0) return;
         
-        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        const finalTotal = subtotal + (subtotal * 0.05);
-        
-        document.getElementById('modal-student-name').innerText = activeStudent.first_name + ' ' + activeStudent.last_name;
-        document.getElementById('modal-final-total').innerText = '$' + finalTotal.toFixed(2);
-        
-        checkoutModal.style.display = 'flex';
-    });
+        saveUnpaidBtn.disabled = true;
+        markPaidBtn.disabled = true;
+        const ogBtnHtml = statusLabel === 'PAID' ? markPaidBtn.innerHTML : saveUnpaidBtn.innerHTML;
+        if(statusLabel === 'PAID') markPaidBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Processing...';
+        else saveUnpaidBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Saving...';
 
-    document.getElementById('cancel-checkout-btn').addEventListener('click', () => checkoutModal.style.display = 'none');
+        const total_amount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        const schoolId = localStorage.getItem('selected_school_id');
 
-    // PROCESS BILL ENGINE
-    async function processBill(statusLabel) {
-        document.getElementById('process-paid-btn').disabled = true;
-        document.getElementById('process-pending-btn').disabled = true;
-        document.getElementById('process-paid-btn').innerHTML = '<i class="ph ph-spinner ph-spin"></i> Saving...';
-
-        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        const total_amount = subtotal + (subtotal * 0.05);
-
-        // 1. Create Invoice Database record natively
         const { data: invoice, error: invError } = await supabase.from('invoices').insert([{
             student_id: activeStudent.id,
             total_amount: total_amount,
-            status: statusLabel
+            status: statusLabel,
+            school_id: schoolId
         }]).select('id').single();
 
         if (invError) {
             alert('System Fault creating Invoice header: ' + invError.message);
-            resetModalButtons();
+            saveUnpaidBtn.disabled = false;
+            markPaidBtn.disabled = false;
+            if(statusLabel === 'PAID') markPaidBtn.innerHTML = ogBtnHtml; else saveUnpaidBtn.innerHTML = ogBtnHtml;
             return;
         }
 
-        // 2. Upload Invoice Items array
         const invoiceItems = cart.map(item => ({
             invoice_id: invoice.id,
             product_type: item.type,
@@ -311,39 +320,47 @@ export async function renderBilling(container) {
             subtotal: item.price * item.qty
         }));
 
-        // 3. Silently inject the Database Inventory Deductor so it isn't visible on the UI, but still triggers SQL decrement rules!
-        const targetClass = activeStudent.grade_section.trim().toUpperCase();
-        const tracker = products.find(p => p.type === 'STATIONERY' && String(p.name).trim().toUpperCase() === targetClass);
-        if (tracker) {
-            invoiceItems.push({
-                invoice_id: invoice.id,
-                product_type: 'STATIONERY',
-                product_id: tracker.id,
-                quantity: 1,
-                unit_price: 0,
-                subtotal: 0
-            });
-        }
-
         const { error: lineError } = await supabase.from('invoice_items').insert(invoiceItems);
         
         if (lineError) {
             alert('Checkout succeeded but line itemization failed: ' + lineError.message);
         } else {
-            // SUCCESS!
-            alert(`Success! Bill Generated as ${statusLabel}. Check the new "Invoices" tab to view it!`);
-            checkoutModal.style.display = 'none';
-            clearStudentBtn.click(); // resets UI cleanly
+            // 5. Deduct explicit physical stock ONLY when the invoice is actually Mark PAID
+            if (statusLabel === 'PAID') {
+                const stockPromises = cart.filter(i => i.type === 'BOOK').map(async (item) => {
+                    const { data: sd } = await supabase.from('Stationery Details').select('remaining_stock').eq('id', item.id).single();
+                    if (sd) {
+                        const newStock = Math.max(0, (sd.remaining_stock ?? 0) - item.qty);
+                        await supabase.from('Stationery Details').update({ remaining_stock: newStock }).eq('id', item.id);
+                    }
+                });
+                await Promise.all(stockPromises);
+            }
+
+            if (statusLabel === 'PAID') {
+                const receiptModule = await import('../utils/receipt.js');
+                receiptModule.showReceiptModal({
+                    id: invoice.id,
+                    student_id: activeStudent.id,
+                    student_name: activeStudent.first_name + ' ' + activeStudent.last_name,
+                    grade_section: activeStudent.grade_section,
+                    parent_contact: activeStudent.parent_contact,
+                    total_amount: total_amount,
+                    status: 'PAID',
+                    created_at: new Date().toISOString(),
+                    items: cart.map(i => ({...i}))
+                });
+            } else {
+                window.showToast("Success", "Invoice saved as UNPAID.", "success");
+            }
+            clearStudentBtn.click();
         }
-        resetModalButtons();
+
+        saveUnpaidBtn.disabled = false;
+        markPaidBtn.disabled = false;
+        if(statusLabel === 'PAID') markPaidBtn.innerHTML = ogBtnHtml; else saveUnpaidBtn.innerHTML = ogBtnHtml;
     }
 
-    function resetModalButtons() {
-        document.getElementById('process-paid-btn').disabled = false;
-        document.getElementById('process-pending-btn').disabled = false;
-        document.getElementById('process-paid-btn').innerHTML = '<i class="ph ph-money"></i> Mark as PAID & Deduct Stock';
-    }
-
-    document.getElementById('process-paid-btn').addEventListener('click', () => processBill('PAID'));
-    document.getElementById('process-pending-btn').addEventListener('click', () => processBill('PENDING'));
+    saveUnpaidBtn.addEventListener('click', () => processCheckout('PENDING'));
+    markPaidBtn.addEventListener('click', () => processCheckout('PAID'));
 }

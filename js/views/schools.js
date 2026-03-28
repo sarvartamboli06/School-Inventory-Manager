@@ -6,7 +6,7 @@ export async function renderSchools(container) {
             <div class="page-header">
                 <div>
                     <h1 class="page-title" style="margin-bottom: 4px;">Registered Schools</h1>
-                    <p style="color: var(--text-muted);">Manage educational institutions attached to this billing system.</p>
+                    <p style="color: var(--text-muted);">Select a school below to continue, or add a new one.</p>
                 </div>
                 <button class="btn btn-primary" id="add-school-btn"><i class="ph ph-buildings"></i> Add New School</button>
             </div>
@@ -115,7 +115,8 @@ async function loadSchools() {
                 </td>
                 <td style="color: var(--text-muted);">${s.address || 'N/A'}</td>
                 <td>${s.contact_number || 'N/A'}</td>
-                <td>
+                <td style="display:flex; gap:8px;">
+                    <button class="btn btn-primary btn-sm select-school-btn" data-id="${s.id}" data-name="${s.school_name}" style="padding: 4px 12px; font-size: 0.85rem;">Select</button>
                     <button class="icon-btn delete-school-btn" data-id="${s.id}" style="width: 32px; height: 32px; color: #EF4444; border: none; background: transparent;" title="Delete School"><i class="ph ph-trash"></i></button>
                 </td>
             </tr>
@@ -130,6 +131,20 @@ async function loadSchools() {
                     if (error) alert('Error: ' + error.message);
                     await loadSchools();
                 }
+            });
+        });
+
+        document.querySelectorAll('.select-school-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.currentTarget.getAttribute('data-id');
+                const name = e.currentTarget.getAttribute('data-name');
+                localStorage.setItem('selected_school_id', id);
+                localStorage.setItem('selected_school_name', name);
+                
+                // Force a full location replace to dashboard hash
+                window.location.hash = '#/';
+                // Trigger an explicit hashchange event for immediate UI update just in case
+                window.dispatchEvent(new HashChangeEvent("hashchange"));
             });
         });
     } catch(err) {

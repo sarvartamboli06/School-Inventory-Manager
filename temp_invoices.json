@@ -1,0 +1,13 @@
+﻿{
+    "value":  [
+                  {
+                      "id":  "88b544e3-1be2-4439-87fa-4a2f73d3b0dc",
+                      "student_id":  "abe7dcd1-3d51-4c37-9cab-094108396138",
+                      "total_amount":  8120.00,
+                      "status":  "PAID",
+                      "created_at":  "2026-03-26T09:27:04.406163+00:00",
+                      "school_id":  "e5e8ec99-374b-4356-b447-270d645ce412"
+                  }
+              ],
+    "Count":  1
+}

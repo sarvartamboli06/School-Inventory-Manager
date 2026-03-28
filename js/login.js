@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Check if already logged in
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
-        window.location.href = 'index.html';
+        window.location.href = 'select-school.html';
         return;
     }
 
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // --- HARDCODED ADMIN FALLBACK ---
         if (emailVal === 'admin@school.com' && passVal === 'admin123') {
             localStorage.setItem('admin_session', 'true');
-            window.location.href = 'index.html';
+            window.location.href = 'select-school.html';
             return;
         }
         // --------------------------------
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             loginBtn.innerHTML = 'Sign In';
             loginBtn.disabled = false;
         } else {
-            window.location.href = 'index.html';
+            window.location.href = 'select-school.html';
         }
     });
 

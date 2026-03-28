@@ -1,0 +1,15 @@
+﻿{
+    "value":  [
+                  {
+                      "id":  "f2486613-b825-4778-80f1-02f01a43083c",
+                      "invoice_id":  "88b544e3-1be2-4439-87fa-4a2f73d3b0dc",
+                      "product_type":  "BOOK",
+                      "product_id":  "339",
+                      "quantity":  1,
+                      "unit_price":  765.00,
+                      "subtotal":  765.00,
+                      "created_at":  "2026-03-26T09:27:04.633294+00:00"
+                  }
+              ],
+    "Count":  1
+}

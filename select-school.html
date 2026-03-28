@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select School - EduBilling</title>
+    
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- UI Styles -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 600px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+        .school-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .school-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+            transform: translateY(-2px);
+        }
+        .school-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #EEF2FF;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container fade-in">
+        <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="color: var(--primary); font-weight: 700; font-size: 2rem;">Welcome Back</h1>
+            <p style="color: var(--text-muted); font-size: 1.1rem;">Please select a school workspace to continue</p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; background: white; border: 2px solid var(--border); padding: 12px 16px; border-radius: var(--radius-md);">
+                <i class="ph ph-magnifying-glass" style="color: var(--text-muted); font-size: 1.2rem; margin-right: 12px;"></i>
+                <input type="text" id="school-search-input" placeholder="Search for a school..." style="border: none; outline: none; width: 100%; font-size: 1.05rem;" autocomplete="off">
+            </div>
+        </div>
+
+        <div id="schools-list" style="max-height: 350px; overflow-y: auto; padding-right: 4px;">
+            <div style="text-align:center; padding: 40px; color: var(--text-muted);">
+                <i class="ph ph-spinner ph-spin" style="font-size: 2rem;"></i><br>Loading schools...
+            </div>
+        </div>
+
+        <div style="margin-top: 32px; text-align: center; border-top: 1px dashed var(--border); padding-top: 24px;">
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px;">Need to manage a new institution?</p>
+            <button class="btn btn-secondary" id="open-add-modal" style="width: 100%; justify-content: center;"><i class="ph ph-buildings"></i> Register New School</button>
+        </div>
+        
+        <div style="margin-top: 16px; text-align: center;">
+            <button class="btn btn-ghost" id="logout-btn" style="color: #EF4444;"><i class="ph ph-sign-out"></i> Logout</button>
+        </div>
+    </div>
+
+    <!-- Modal for Adding School -->
+    <div id="add-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+        <div class="container fade-in" style="width: 100%; max-width: 500px; padding: 32px;">
+            <h2 style="margin-bottom: 24px;">Register New School</h2>
+            <form id="add-school-form" style="display: flex; flex-direction: column; gap: 16px;">
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;">School Name</label>
+                    <input type="text" id="add-name" required style="width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); outline: none;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;">Address</label>
+                    <input type="text" id="add-address" required style="width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); outline: none;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;">Contact Number</label>
+                    <input type="text" id="add-contact" style="width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); outline: none;">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px;">
+                    <button type="button" class="btn btn-ghost" id="close-modal-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="save-btn">Save School</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="js/select-school.js"></script>
+</body>
+</html>
