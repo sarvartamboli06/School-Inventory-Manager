@@ -35,6 +35,9 @@ export async function renderStudents(container) {
                 </table>
             </div>
 
+            <!-- Pagination Container -->
+            <div id="pagination-container" style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 24px; padding-bottom: 24px;"></div>
+
             <!-- Modal for Adding Student -->
             <div id="add-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
                 <div class="card fade-in" style="width: 100%; max-width: 500px; padding: 32px; box-shadow: var(--shadow-lg);">
@@ -70,6 +73,58 @@ export async function renderStudents(container) {
     `;
 
     let allStudents = [];
+    let currentPage = 1;
+    const rowsPerPage = 20;
+    
+    const renderPaginationControls = (totalPages) => {
+        const container = document.getElementById('pagination-container');
+        if (!container) return;
+        
+        let html = '';
+        const btnStyle = "display: flex; align-items: center; justify-content: center; font-weight: bold; border: none; background: transparent; color: var(--primary); cursor: pointer; transition: 0.2s;";
+        
+        html += `<button class="paginate-btn" data-page="${currentPage - 1}" ${currentPage === 1 ? `disabled style="opacity: 0.5; cursor: not-allowed; ${btnStyle}"` : `style="${btnStyle}"`}><i class="ph ph-caret-left" style="margin-right: 4px;"></i> Prev</button>`;
+        
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages > 0 ? totalPages : 1, startPage + 4);
+        if (endPage - startPage < 4) {
+            startPage = Math.max(1, endPage - 4);
+        }
+
+        if (startPage > 1) {
+            html += `<button class="paginate-btn" data-page="1" style="width: 36px; height: 36px; border-radius: 50%; ${btnStyle}">1</button>`;
+            if (startPage > 2) html += `<span style="color: var(--primary); font-weight: bold; padding: 0 4px;">...</span>`;
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            if (i === currentPage) {
+                html += `<button style="width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; background: #2DD4BF; color: white; border: none; pointer-events: none; box-shadow: 0 4px 6px -1px rgba(45,212,191,0.5);">${i}</button>`;
+            } else {
+                html += `<button class="paginate-btn" data-page="${i}" style="width: 36px; height: 36px; border-radius: 50%; ${btnStyle}">${i}</button>`;
+            }
+        }
+
+        if (endPage < (totalPages > 0 ? totalPages : 1)) {
+            if (endPage < (totalPages > 0 ? totalPages : 1) - 1) html += `<span style="color: var(--primary); font-weight: bold; padding: 0 4px;">...</span>`;
+            html += `<button class="paginate-btn" data-page="${totalPages}" style="width: 36px; height: 36px; border-radius: 50%; ${btnStyle}">${totalPages}</button>`;
+        }
+
+        html += `<button class="paginate-btn" data-page="${currentPage + 1}" ${currentPage >= (totalPages > 0 ? totalPages : 1) ? `disabled style="opacity: 0.5; cursor: not-allowed; ${btnStyle}"` : `style="${btnStyle}"`}>Next <i class="ph ph-caret-right" style="margin-left: 4px;"></i></button>`;
+
+        container.innerHTML = `<div style="background: white; padding: 8px 20px; border-radius: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px;">${html}</div>`;
+
+        container.querySelectorAll('.paginate-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (btn.hasAttribute('disabled')) return;
+                const newPage = parseInt(e.currentTarget.getAttribute('data-page'));
+                if (newPage >= 1 && newPage <= (totalPages > 0 ? totalPages : 1)) {
+                    currentPage = newPage;
+                    renderTable();
+                }
+            });
+        });
+    };
+
     const schoolId = localStorage.getItem('selected_school_id');
     const schoolNameStr = localStorage.getItem('selected_school_name') || 'Main Campus';
 
@@ -204,7 +259,11 @@ export async function renderStudents(container) {
             return;
         }
 
-        tbody.innerHTML = filtered.map(s => `
+        const totalPages = Math.ceil(filtered.length / rowsPerPage);
+        if (currentPage > totalPages) currentPage = totalPages || 1;
+        const paginated = filtered.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+        tbody.innerHTML = paginated.map(s => `
             <tr>
                 <td style="font-weight: 500;">
                     <div style="display: flex; align-items: center; gap: 12px;">
@@ -238,5 +297,7 @@ export async function renderStudents(container) {
                 }
             });
         });
+
+        renderPaginationControls(totalPages);
     }
 }

@@ -21,13 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const emailVal = emailInput.value.trim().toLowerCase();
         const passVal = passwordInput.value.trim();
 
-        // --- HARDCODED ADMIN FALLBACK ---
-        if (emailVal === 'admin@school.com' && passVal === 'admin123') {
-            localStorage.setItem('admin_session', 'true');
-            window.location.href = 'select-school.html';
-            return;
-        }
-        // --------------------------------
+        // Ensure we strictly hit Supabase Auth for security tokens
 
         loginBtn.innerHTML = 'Signing in...';
         loginBtn.disabled = true;

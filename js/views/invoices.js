@@ -52,6 +52,9 @@ export async function renderInvoices(container) {
                 </table>
             </div>
 
+            <!-- Pagination Container -->
+            <div id="pagination-container" style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 24px; padding-bottom: 24px;"></div>
+
         </div>
     `;
 
@@ -178,6 +181,59 @@ export async function renderInvoices(container) {
 
     let allInvoices = [];
     let products = [];
+    let productsLoaded = false;
+    let currentPage = 1;
+    const rowsPerPage = 20;
+
+    const renderPaginationControls = (totalPages) => {
+        const container = document.getElementById('pagination-container');
+        if (!container) return;
+        
+        // Always render to show UI
+        let html = '';
+        const btnStyle = "display: flex; align-items: center; justify-content: center; font-weight: bold; border: none; background: transparent; color: var(--primary); cursor: pointer; transition: 0.2s;";
+        
+        html += `<button class="paginate-btn" data-page="${currentPage - 1}" ${currentPage === 1 ? `disabled style="opacity: 0.5; cursor: not-allowed; ${btnStyle}"` : `style="${btnStyle}"`}><i class="ph ph-caret-left" style="margin-right: 4px;"></i> Prev</button>`;
+        
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, startPage + 4);
+        if (endPage - startPage < 4) {
+            startPage = Math.max(1, endPage - 4);
+        }
+
+        if (startPage > 1) {
+            html += `<button class="paginate-btn" data-page="1" style="width: 36px; height: 36px; border-radius: 50%; ${btnStyle}">1</button>`;
+            if (startPage > 2) html += `<span style="color: var(--primary); font-weight: bold; padding: 0 4px;">...</span>`;
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            if (i === currentPage) {
+                html += `<button style="width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; background: #2DD4BF; color: white; border: none; pointer-events: none; box-shadow: 0 4px 6px -1px rgba(45,212,191,0.5);">${i}</button>`;
+            } else {
+                html += `<button class="paginate-btn" data-page="${i}" style="width: 36px; height: 36px; border-radius: 50%; ${btnStyle}">${i}</button>`;
+            }
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) html += `<span style="color: var(--primary); font-weight: bold; padding: 0 4px;">...</span>`;
+            html += `<button class="paginate-btn" data-page="${totalPages}" style="width: 36px; height: 36px; border-radius: 50%; ${btnStyle}">${totalPages}</button>`;
+        }
+
+        html += `<button class="paginate-btn" data-page="${currentPage + 1}" ${currentPage === totalPages ? `disabled style="opacity: 0.5; cursor: not-allowed; ${btnStyle}"` : `style="${btnStyle}"`}>Next <i class="ph ph-caret-right" style="margin-left: 4px;"></i></button>`;
+
+        container.innerHTML = `<div style="background: white; padding: 8px 20px; border-radius: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px;">${html}</div>`;
+
+        container.querySelectorAll('.paginate-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (btn.hasAttribute('disabled')) return;
+                const newPage = parseInt(e.currentTarget.getAttribute('data-page'));
+                if (newPage >= 1 && newPage <= totalPages) {
+                    currentPage = newPage;
+                    renderTable();
+                }
+            });
+        });
+    };
 
     const loadInvoices = async () => {
         const tbody = document.getElementById('invoices-tbody');
@@ -185,26 +241,37 @@ export async function renderInvoices(container) {
 
         const schoolId = localStorage.getItem('selected_school_id');
 
-        const [ 
-            { data: invoices, error: invErr },
-            { data: inventory },
-            { data: books }
-        ] = await Promise.all([
-            supabase.from('invoices').select('*, students(first_name, last_name, grade_section, school_name, parent_contact)').eq('school_id', schoolId).order('created_at', { ascending: false }),
-            supabase.from('inventory_items').select('*').eq('school_id', schoolId),
-            supabase.from('Stationery Details').select('*').eq('school_id', schoolId)
-        ]);
+        let invoices, invErr;
+
+        if (!productsLoaded) {
+            let inventory, books;
+            [ 
+                { data: invoices, error: invErr },
+                { data: inventory },
+                { data: books }
+            ] = await Promise.all([
+                supabase.from('invoices').select('*, students(first_name, last_name, grade_section, school_name, parent_contact)').eq('school_id', schoolId).order('created_at', { ascending: false }),
+                supabase.from('inventory_items').select('*').eq('school_id', schoolId),
+                supabase.from('Stationery Details').select('*').eq('school_id', schoolId)
+            ]);
+
+            products = [];
+            if (inventory) products.push(...inventory.map(i => ({ id: String(i.id), name: i.item_name || 'Unknown' })));
+            if (books) products.push(...books.map(b => ({ id: String(b.id), name: b['Book Name'] || 'Unknown Book' })));
+            productsLoaded = true;
+        } else {
+            const res = await supabase.from('invoices').select('*, students(first_name, last_name, grade_section, school_name, parent_contact)').eq('school_id', schoolId).order('created_at', { ascending: false });
+            invoices = res.data;
+            invErr = res.error;
+        }
 
         if (invErr) {
             tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 24px; color: #EF4444;"><b>Error:</b> ${invErr.message}</td></tr>`;
             return;
         }
 
-        products = [];
-        if (inventory) products.push(...inventory.map(i => ({ id: String(i.id), name: i.item_name || 'Unknown' })));
-        if (books) products.push(...books.map(b => ({ id: String(b.id), name: b['Book Name'] || 'Unknown Book' })));
-
         allInvoices = invoices || [];
+        allInvoices.forEach((inv, idx) => inv.seq_no = allInvoices.length - idx);
         renderTable();
     };
 
@@ -228,9 +295,13 @@ export async function renderInvoices(container) {
             return;
         }
 
-        tbody.innerHTML = filtered.map(inv => `
+        const totalPages = Math.ceil(filtered.length / rowsPerPage);
+        if (currentPage > totalPages) currentPage = totalPages || 1;
+        const paginated = filtered.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+        tbody.innerHTML = paginated.map(inv => `
             <tr>
-                <td style="font-family: monospace; color: var(--text-muted); font-size: 0.9rem;">${inv.id.split('-')[0].toUpperCase()}</td>
+                <td style="font-family: monospace; font-weight: 700; color: var(--text-main); font-size: 0.95rem;">${inv.seq_no}</td>
                 <td>${new Date(inv.created_at).toLocaleDateString()} <span style="color:var(--text-muted); font-size:0.8rem;">${new Date(inv.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span></td>
                 <td style="font-weight: 500;">
                     ${inv.students ? inv.students.first_name + ' ' + inv.students.last_name : 'Unknown Student'}<br>
@@ -454,7 +525,7 @@ export async function renderInvoices(container) {
                     const inv = allInvoices.find(i => i.id === id);
                     const { data: lines } = await supabase.from('invoice_items').select('*').eq('invoice_id', id);
                     
-                    import('../utils/receipt.js').then(m => {
+                    import('../utils/receipt.js?v=printable_v3').then(m => {
                         m.showReceiptModal({
                             id: inv.id,
                             student_id: inv.student_id,
@@ -464,6 +535,7 @@ export async function renderInvoices(container) {
                             total_amount: inv.total_amount,
                             status: inv.status,
                             created_at: inv.created_at,
+                            seq_no: inv.seq_no,
                             notes: inv.notes,
                             items: (lines || []).map(l => {
                                 let prodName = 'Unknown Item';
@@ -524,9 +596,11 @@ export async function renderInvoices(container) {
                 }
             });
         });
+
+        renderPaginationControls(totalPages);
     };
 
-    document.getElementById('status-filter').addEventListener('change', renderTable);
+    document.getElementById('status-filter').addEventListener('change', () => { currentPage = 1; renderTable(); });
     document.getElementById('close-view-btn').addEventListener('click', () => document.getElementById('view-modal').style.display = 'none');
 
     document.getElementById('export-csv-btn').addEventListener('click', async (e) => {

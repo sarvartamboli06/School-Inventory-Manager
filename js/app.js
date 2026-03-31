@@ -50,36 +50,10 @@ if (!isSupabaseConfigured) {
 
 async function initAuth() {
     try {
-        // Check for hardcoded admin bypass first
-        if (localStorage.getItem('admin_session') === 'true') {
-            console.log("Offline Admin session verified, initializing router...");
-            
-            // Multi-school check
-            if (!localStorage.getItem('selected_school_id')) {
-                window.location.href = 'select-school.html';
-                return;
-            }
-
-            router.init();
-            const sidebarSchoolDisplay = document.getElementById('sidebar-school-name');
-            if (sidebarSchoolDisplay) sidebarSchoolDisplay.innerText = localStorage.getItem('selected_school_name') || 'Select School';
-            
-            const logoutBtn = document.getElementById('sidebar-logout-btn');
-            if(logoutBtn) {
-                logoutBtn.addEventListener('click', async () => {
-                    localStorage.removeItem('admin_session');
-                    localStorage.removeItem('selected_school_id');
-                    localStorage.removeItem('selected_school_name');
-                    try { await supabase.auth.signOut(); } catch(e) {}
-                    window.location.href = 'login.html';
-                });
-            }
-            return;
-        }
-
         const sessionResponse = await supabase.auth.getSession();
         
         if (sessionResponse.error || !sessionResponse.data || !sessionResponse.data.session) {
+            localStorage.removeItem('admin_session'); // Nuke legacy backdoor
             console.log("No active session or network error, redirecting to login...");
             window.location.href = 'login.html';
             return;

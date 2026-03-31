@@ -42,14 +42,12 @@ window.alert = function(message) {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Check Auth (Allow Admin bypass)
-    const isAdmin = localStorage.getItem('admin_session') === 'true';
-    if (!isAdmin) {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-            window.location.href = 'login.html';
-            return;
-        }
+    // 1. Strict Auth Verification
+    localStorage.removeItem('admin_session'); // Nuke legacy backdoor
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+        window.location.href = 'login.html';
+        return;
     }
 
     const schoolsList = document.getElementById('schools-list');

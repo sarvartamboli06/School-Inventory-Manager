@@ -285,7 +285,11 @@ export async function renderBilling(container) {
     };
 
     async function processCheckout(statusLabel) {
-        if(!activeStudent || cart.length === 0) return;
+        const activeItems = cart.filter(item => item.qty > 0);
+        if(!activeStudent || activeItems.length === 0) {
+            alert('Select a student and ensure at least one item has a quantity greater than 0.');
+            return;
+        }
         
         saveUnpaidBtn.disabled = true;
         markPaidBtn.disabled = true;
@@ -293,7 +297,7 @@ export async function renderBilling(container) {
         if(statusLabel === 'PAID') markPaidBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Processing...';
         else saveUnpaidBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Saving...';
 
-        const total_amount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        const total_amount = activeItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
         const schoolId = localStorage.getItem('selected_school_id');
 
         const { data: invoice, error: invError } = await supabase.from('invoices').insert([{
@@ -311,7 +315,7 @@ export async function renderBilling(container) {
             return;
         }
 
-        const invoiceItems = cart.map(item => ({
+        const invoiceItems = activeItems.map(item => ({
             invoice_id: invoice.id,
             product_type: item.type,
             product_id: item.id,
@@ -322,12 +326,15 @@ export async function renderBilling(container) {
 
         const { error: lineError } = await supabase.from('invoice_items').insert(invoiceItems);
         
+        const { count } = await supabase.from('invoices').select('*', { count: 'exact', head: true }).eq('school_id', schoolId);
+        const sequenceNumber = count || 1;
+
         if (lineError) {
             alert('Checkout succeeded but line itemization failed: ' + lineError.message);
         } else {
             // 5. Deduct explicit physical stock ONLY when the invoice is actually Mark PAID
             if (statusLabel === 'PAID') {
-                const stockPromises = cart.filter(i => i.type === 'BOOK').map(async (item) => {
+                const stockPromises = activeItems.filter(i => i.type === 'BOOK').map(async (item) => {
                     const { data: sd } = await supabase.from('Stationery Details').select('remaining_stock').eq('id', item.id).single();
                     if (sd) {
                         const newStock = Math.max(0, (sd.remaining_stock ?? 0) - item.qty);
@@ -338,7 +345,7 @@ export async function renderBilling(container) {
             }
 
             if (statusLabel === 'PAID') {
-                const receiptModule = await import('../utils/receipt.js');
+                const receiptModule = await import('../utils/receipt.js?v=printable_v3');
                 receiptModule.showReceiptModal({
                     id: invoice.id,
                     student_id: activeStudent.id,
@@ -348,7 +355,8 @@ export async function renderBilling(container) {
                     total_amount: total_amount,
                     status: 'PAID',
                     created_at: new Date().toISOString(),
-                    items: cart.map(i => ({...i}))
+                    seq_no: sequenceNumber,
+                    items: activeItems.map(i => ({...i}))
                 });
             } else {
                 window.showToast("Success", "Invoice saved as UNPAID.", "success");

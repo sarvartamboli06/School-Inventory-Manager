@@ -1,13 +1,15 @@
 export function showReceiptModal(invoice) {
     let container = document.getElementById('global-receipt-modal');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'global-receipt-modal';
-        container.style.cssText = 'display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: flex-start; justify-content: center; backdrop-filter: blur(4px); overflow-y: auto; padding: 40px 0;';
-        container.innerHTML = `
+    if (container) {
+        container.remove();
+    }
+    container = document.createElement('div');
+    container.id = 'global-receipt-modal';
+    container.style.cssText = 'display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: flex-start; justify-content: center; backdrop-filter: blur(4px); overflow-y: auto; padding: 40px 0;';
+    container.innerHTML = `
             <div style="display: flex; flex-direction: column; gap: 24px; max-width: 800px; width: 100%; align-items: center; margin: auto; position: relative;">
                 
-                <div id="receipt-paper" class="card fade-in" style="width: 100%; background: white; padding: 40px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); font-family: 'Courier New', Courier, monospace; color: black; border-radius: 4px; position: relative; overflow: hidden;">
+                <div id="receipt-paper" class="card fade-in" style="width: 100%; background: white; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); font-family: Arial, Helvetica, sans-serif; color: #000; font-weight: 600; border-radius: 4px; position: relative; overflow: hidden;">
                     
                     <!-- PAID WATERMARK STAMP -->
                     <div id="rcpt-paid-stamp" style="display: none; position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); font-size: 6rem; font-weight: 900; color: rgba(16, 185, 129, 0.15); border: 8px solid rgba(16, 185, 129, 0.15); padding: 10px 40px; border-radius: 16px; letter-spacing: 12px; pointer-events: none; z-index: 10;">
@@ -16,12 +18,10 @@ export function showReceiptModal(invoice) {
 
                     <!-- Header -->
                     <div style="text-align: center; margin-bottom: 24px;">
-                        <h2 style="font-size: 1.4rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 4px;">UNIFORM & STATIONERY SHOP</h2>
-                        <p style="font-size: 0.85rem; letter-spacing: 1px; margin-bottom: 12px;">QUALITY SCHOOL SUPPLIES SINCE 1995</p>
-                        <p style="font-size: 0.85rem; margin-bottom: 2px;">123, Main Market, Near City School</p>
-                        <p style="font-size: 0.85rem; margin-bottom: 2px;">Mumbai - 400001, Maharashtra</p>
-                        <p style="font-size: 0.85rem; margin-bottom: 2px;">Phone: +91-22-23456789 | Email: info@uniformshop.com</p>
-                        <p style="font-size: 0.85rem; font-weight: bold; margin-top: 8px;">GSTIN: 27AAAPL1234C1ZY</p>
+                        <h2 style="font-size: 1.6rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 4px; color: #1e3a8a;">DNYANAI ENTERPRISES</h2>
+                        <p style="font-size: 0.95rem; font-style: italic; letter-spacing: 1px; margin-bottom: 12px; color: #475569;">"Elevate Your Expectations"</p>
+                        <p style="font-size: 0.85rem; font-weight: bold; margin-bottom: 6px; background: #1e40af; color: white; display: inline-block; padding: 4px 12px; border-radius: 4px; letter-spacing: 1px;">School Stationary Services</p>
+                        <p style="font-size: 0.85rem; margin-bottom: 2px; margin-top: 8px;"><i class="ph ph-whatsapp-logo" style="vertical-align: middle; font-size: 1rem;"></i> 9960996750 &nbsp;|&nbsp; <i class="ph ph-map-pin" style="vertical-align: middle; font-size: 1rem;"></i> Kopargaon, Dist. Ahmednagar</p>
                     </div>
 
                     <div style="border-top: 2px solid black; border-bottom: 1px solid black; height: 4px; margin-bottom: 16px;"></div>
@@ -33,13 +33,11 @@ export function showReceiptModal(invoice) {
                         <div>
                             <div style="display: flex; margin-bottom: 4px;"><span style="width: 120px;">INVOICE #</span> <span style="font-weight: bold;" id="rcpt-invoice-id">INV-PENDING</span></div>
                             <div style="display: flex; margin-bottom: 4px;"><span style="width: 120px;">DATE</span> <span id="rcpt-date">-</span></div>
-                            <div style="display: flex; margin-bottom: 4px;"><span style="width: 120px;">TIME</span> <span id="rcpt-time">-</span></div>
                             <div style="display: flex;"><span style="width: 120px;">SCHOOL</span> <span id="rcpt-school">-</span></div>
                         </div>
                         <div>
                             <div style="display: flex; margin-bottom: 4px;"><span style="width: 140px;">STUDENT NAME</span> <b id="rcpt-student-name">-</b></div>
                             <div style="display: flex; margin-bottom: 4px;"><span style="width: 140px;">CLASS & SECTION</span> <span id="rcpt-class">-</span></div>
-                            <div style="display: flex; margin-bottom: 4px;"><span style="width: 140px;">ROLL NO.</span> <span id="rcpt-roll">-</span></div>
                             <div style="display: flex;"><span style="width: 140px;">PARENT PHONE</span> <span id="rcpt-phone">-</span></div>
                         </div>
                     </div>
@@ -85,48 +83,39 @@ export function showReceiptModal(invoice) {
                     </div>
 
                     <div style="border-top: 1px dashed black; margin-bottom: 16px;"></div>
-
-                    <!-- Terms & Auth -->
-                    <div style="font-size: 0.8rem; margin-bottom: 32px;">
-                        <p style="font-weight: bold; margin-bottom: 8px;">PAYMENT TERMS & CONDITIONS:</p>
-                        <p>1. Goods once sold will not be taken back.</p>
-                        <p>2. Payment should be made within 7 days.</p>
-                        <p>3. Subject to Mumbai jurisdiction.</p>
-                        <p>4. This is a computer generated invoice.</p>
-                    </div>
-
-                    <div style="display: flex; justify-content: space-between; margin-top: 60px; font-size: 0.8rem; color: #555; text-align: center;">
-                        <div style="width: 200px;">
-                            <div style="border-top: 1px dashed black; margin-bottom: 4px;"></div>
-                            CUSTOMER SIGNATURE
-                        </div>
-                        <div style="width: 200px;">
-                            <div style="border-top: 1px dashed black; margin-bottom: 4px;"></div>
-                            AUTHORIZED SIGNATORY
-                        </div>
-                    </div>
-
-                    <div style="text-align: center; margin-top: 40px; font-size: 0.85rem; font-weight: bold;">
-                        Thank you for your business!
-                        <div style="font-weight: normal; margin-top: 4px;">www.uniformshop.com</div>
-                        <div style="margin-top: 12px; letter-spacing: 4px; font-size: 1.2rem;">||||||||||||||||||||||||||</div>
-                        <div id="rcpt-barcode-text" style="margin-top: 8px; font-weight: normal;">INV-PENDING</div>
-                    </div>
                 </div>
 
                 <!-- Actions -->
                 <div style="display: flex; gap: 16px; width: 100%;">
                     <button class="btn btn-primary" id="rcpt-download-btn" style="flex: 1; padding: 16px; font-size: 1.1rem; box-shadow: var(--shadow-md);"><i class="ph ph-download-simple"></i> Download PDF</button>
-                    <button class="btn btn-secondary" id="rcpt-sms-btn" style="flex: 1; padding: 16px; font-size: 1.1rem; box-shadow: var(--shadow-sm);"><i class="ph ph-chat-text"></i> Inform Parent (SMS)</button>
+                    <button class="btn btn-secondary" id="rcpt-print-btn" style="flex: 1; padding: 16px; font-size: 1.1rem; box-shadow: var(--shadow-sm);"><i class="ph ph-printer"></i> Print Invoice</button>
                     <button class="btn btn-ghost" onclick="document.getElementById('global-receipt-modal').style.display='none'" style="padding: 16px; font-size: 1.1rem; background: white; color: #EF4444;"><i class="ph ph-x"></i> Close</button>
                 </div>
             </div>
         `;
         document.body.appendChild(container);
         
-        document.getElementById('rcpt-sms-btn').addEventListener('click', () => {
-            const phoneStr = invoice.parent_contact ? ` (${invoice.parent_contact})` : '';
-            alert(`SMS successfully sent to the registered Number${phoneStr}: Amount Paid Successfully`);
+        document.getElementById('rcpt-print-btn').addEventListener('click', () => {
+            if (!document.getElementById('receipt-print-style')) {
+                const style = document.createElement('style');
+                style.id = 'receipt-print-style';
+                style.innerHTML = `
+                    @media print {
+                        @page { size: auto; margin: 0; }
+                        body * { visibility: hidden; }
+                        #global-receipt-modal { 
+                            position: absolute; left: 0; top: 0; width: 100%; height: auto; padding: 0; background: none; overflow: visible; display: block !important;
+                        }
+                        #receipt-paper, #receipt-paper * { visibility: visible; }
+                        #receipt-paper { 
+                            position: absolute; left: 0; top: 0; width: 100% !important; max-width: 100% !important; box-shadow: none !important; border: none !important; margin: 0 !important; padding: 10mm !important;
+                        }
+                        #global-receipt-modal button { display: none !important; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            window.print();
         });
 
         document.getElementById('rcpt-download-btn').addEventListener('click', () => {
@@ -137,11 +126,12 @@ export function showReceiptModal(invoice) {
 
             const element = document.getElementById('receipt-paper');
             const opt = {
-                margin:       10,
-                filename:     `Invoice_${document.getElementById('rcpt-barcode-text').innerText}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                margin:       [10, 10, 10, 10],
+                filename:     `Invoice_${document.getElementById('rcpt-invoice-id').innerText}.pdf`,
+                image:        { type: 'jpeg', quality: 1.0 },
+                html2canvas:  { scale: 3, useCORS: true, letterRendering: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: ['avoid-all'] }
             };
 
             html2pdf().set(opt).from(element).save().then(() => {
@@ -149,16 +139,13 @@ export function showReceiptModal(invoice) {
                 btn.disabled = false;
             });
         });
-    }
 
     // Populate Logic
-    const shortUUID = 'INV-' + String(invoice.id).split('-').slice(0,2).join('-');
+    const displayId = invoice.seq_no ? String(invoice.seq_no) : 'INV-' + String(invoice.id).split('-')[0].toUpperCase();
     const dt = new Date(invoice.created_at || Date.now());
     
-    document.getElementById('rcpt-invoice-id').innerText = shortUUID;
-    document.getElementById('rcpt-barcode-text').innerText = shortUUID + '-' + String(invoice.student_id).split('-')[0];
+    document.getElementById('rcpt-invoice-id').innerText = displayId;
     document.getElementById('rcpt-date').innerText = dt.toLocaleDateString();
-    document.getElementById('rcpt-time').innerText = dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     document.getElementById('rcpt-school').innerText = (localStorage.getItem('selected_school_name') || 'Samata International School').toUpperCase();
     
     const studentName = invoice.student_name || 'UNKNOWN STUDENT';
