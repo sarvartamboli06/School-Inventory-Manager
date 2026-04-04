@@ -50,6 +50,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    if (localStorage.getItem('user_role') === 'SCHOOL') {
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    if (localStorage.getItem('user_role') !== 'SUPPLIER') {
+        // Deep isolation enforcement: Kick unmapped ghosts
+        await supabase.auth.signOut();
+        window.location.href = 'login.html';
+        return;
+    }
+
     const schoolsList = document.getElementById('schools-list');
     const modal = document.getElementById('add-modal');
     let allSchools = [];
@@ -134,13 +146,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         btn.innerHTML = 'Saving...';
         btn.disabled = true;
 
+        const { data: authData } = await supabase.auth.getUser();
+        const supplierId = authData.user?.id;
+
         const payload = {
             school_name: document.getElementById('add-name').value,
             address: document.getElementById('add-address').value,
-            contact_number: document.getElementById('add-contact').value
+            contact_number: document.getElementById('add-contact').value,
+            supplier_id: supplierId
         };
 
-        const { error } = await supabase.from('schools').insert([payload]);
+        const { data: sData, error } = await supabase.from('schools').insert([payload]).select();
+
         if (error) {
             alert('Error saving school: ' + error.message);
         } else {

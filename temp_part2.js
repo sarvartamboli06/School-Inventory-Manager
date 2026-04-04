@@ -1,274 +1,3 @@
-import { supabase } from '../supabase.js';
-
-export async function renderInvoices(container) {
-    container.innerHTML = `
-        <div class="fade-in">
-            <div class="page-header">
-                <div>
-                    <h1 class="page-title" style="margin-bottom: 4px;">Invoices & Payments</h1>
-                    <p style="color: var(--text-muted);">Track generated bills, manage unpaid entries, and filter transaction statuses.</p>
-                </div>
-                <div style="display: flex; gap: 12px; align-items: center;">
-                    <div style="position: relative;">
-                        <i class="ph ph-magnifying-glass" style="position: absolute; left: 10px; top: 12px; color: var(--text-muted);"></i>
-                        <input type="text" id="invoice-search" placeholder="Search by Inv No or Name..." style="padding: 10px 10px 10px 32px; border-radius: var(--radius-md); border: 1px solid var(--border); outline: none; width: 260px; font-weight: 500;">
-                    </div>
-                    <button id="export-csv-btn" class="btn btn-secondary" style="padding: 10px 16px; border-radius: var(--radius-md); font-weight: 600; display: flex; align-items: center; gap: 8px;" title="Export currently filtered invoices to Excel Pivot Table">
-                        <i class="ph ph-file-xls"></i> Export Excel
-                    </button>
-                    <label style="font-size: 0.9rem; font-weight: 600;">Status Filter:</label>
-                    <select id="status-filter" style="padding: 10px 16px; border-radius: var(--radius-md); border: 1px solid var(--border); outline: none; background: white; font-weight: bold; color: var(--primary);">
-                        <option value="ALL">All Invoices</option>
-                        <option value="PAID">💵 PAID Only</option>
-                        <option value="PENDING">⏳ UNPAID / PENDING</option>
-                        <option value="RETURNED">🔄 RETURNED</option>
-                    </select>
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 24px; margin-bottom: 24px;">
-                <div class="card" style="flex: 1;">
-                    <h3 style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 8px;">Total Processed Revenue</h3>
-                    <div style="font-size: 1.8rem; font-weight: 800; color: #10B981;" id="metric-paid">₹0.00</div>
-                </div>
-                <div class="card" style="flex: 1;">
-                    <h3 style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 8px;">Pending Accounts Receivable</h3>
-                    <div style="font-size: 1.8rem; font-weight: 800; color: #F59E0B;" id="metric-pending">₹0.00</div>
-                </div>
-            </div>
-
-            <div class="table-container">
-                <table style="min-width: 900px;">
-                    <thead>
-                        <tr>
-                            <th>Inv. No</th>
-                            <th>Date Generated</th>
-                            <th>Student Ref</th>
-                            <th>Status</th>
-                            <th>Amount</th>
-                            <th>Remarks</th>
-                            <th style="width: 150px;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="invoices-tbody">
-                        <tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">Loading system invoices...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination Container -->
-            <div id="pagination-container" style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 24px; padding-bottom: 24px;"></div>
-
-        </div>
-    `;
-
-    // Purge old modal to prevent duplicates when navigating router
-    const oldModal = document.getElementById('view-modal');
-    if (oldModal) oldModal.remove();
-
-    // Inject beautifully centered Popup Modal at body level
-    document.body.insertAdjacentHTML('beforeend', `
-        <div id="view-modal" class="fade-in" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 9999; backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px;">
-            
-            <div class="card" style="width: 100%; max-width: 850px; max-height: 90vh; background: white; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); display: flex; flex-direction: column; overflow: hidden; position: relative; padding: 0;">
-                
-                <!-- Fixed Header -->
-                <div style="padding: 24px 32px; background: #F8FAFC; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: flex-start; flex-shrink: 0;">
-                    <div>
-                        <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                            <i class="ph ph-receipt" style="color: var(--primary);"></i> Invoice Details
-                        </h2>
-                        <div id="view-student-details" style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; display: flex; flex-direction: column; gap: 4px;"></div>
-                    </div>
-                    <button class="icon-btn" id="close-view-btn" style="border:none; background: #E2E8F0; color: var(--text-main); width: 40px; height: 40px; border-radius: 50%; font-size: 1.25rem; cursor:pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;"><i class="ph ph-x"></i></button>
-                </div>
-
-                <!-- Scrollable Body -->
-                <div style="padding: 32px; overflow-y: auto; flex-grow: 1; background: white;">
-                    <div style="display: grid; grid-template-columns: 60px 1fr 120px 120px; font-weight: 700; color: var(--text-muted); padding-bottom: 12px; border-bottom: 2px solid #E2E8F0; margin-bottom: 8px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">
-                        <div>QTY</div>
-                        <div>ITEM DESCRIPTION</div>
-                        <div style="text-align: right;">AMOUNT</div>
-                        <div style="text-align: right;">ACTION</div>
-                    </div>
-
-                    <ul id="view-items-list" style="list-style: none; padding: 0; margin: 0;">
-                        <li style="text-align:center; padding: 40px; color: var(--text-muted);"><i class="ph ph-spinner ph-spin" style="font-size: 2rem;"></i> Loading items...</li>
-                    </ul>
-                </div>
-
-                <!-- Fixed Footer -->
-                <div style="padding: 24px 32px; background: white; border-top: 2px dashed #CBD5E1; display: flex; flex-direction: column; flex-shrink: 0; border-radius: 0 0 16px 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%;">
-                        <div id="view-invoice-notes" style="font-size: 0.85rem; color: #64748B; max-width: 65%; white-space: pre-line; padding-right: 20px; text-align: left;"></div>
-                        <div style="display: flex; align-items: center;">
-                            <span style="font-size: 1.1rem; font-weight: 600; color: var(--text-muted); margin-right: 20px;">Grand Total</span>
-                            <span style="font-size: 2.2rem; font-weight: 800; color: var(--primary);" id="view-total"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `);
-
-    // Purge old toasts and confirms to prevent duplicates when navigating router
-    const oldToastMenu = document.getElementById('toast-container');
-    if (oldToastMenu) oldToastMenu.remove();
-    const oldConfirm = document.getElementById('confirm-modal');
-    if (oldConfirm) oldConfirm.remove();
-
-    // Inject App-level Toasts & Confirm Modals
-    document.body.insertAdjacentHTML('beforeend', `
-        <div id="toast-container" style="position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 12px; z-index: 10000;"></div>
-        
-        <div id="confirm-modal" class="fade-in" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 10000; backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px;">
-            <div class="card" style="width: 100%; max-width: 400px; background: white; border-radius: 12px; box-shadow: var(--shadow-xl); padding: 24px; text-align: center;">
-                <div id="confirm-icon" style="font-size: 3rem; color: #EF4444; margin-bottom: 16px;"><i class="ph ph-warning-circle"></i></div>
-                <h3 id="confirm-title" style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Are you sure?</h3>
-                <p id="confirm-msg" style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 24px;"></p>
-                <div style="display: flex; gap: 12px; justify-content: center;">
-                    <button id="confirm-cancel-btn" class="btn btn-secondary" style="flex: 1; padding: 10px;">Cancel</button>
-                    <button id="confirm-ok-btn" class="btn btn-primary" style="flex: 1; padding: 10px; background: #EF4444; border: none;">Proceed</button>
-                </div>
-            </div>
-        </div>
-    `);
-
-    function showToast(message, type = 'success') {
-        const container = document.getElementById('toast-container');
-        if (!container) return;
-        
-        const toast = document.createElement('div');
-        const bgColor = type === 'success' ? '#10B981' : '#EF4444';
-        const icon = type === 'success' ? 'ph-check-circle' : 'ph-warning-circle';
-        
-        toast.style = `background: ${bgColor}; color: white; padding: 14px 20px; border-radius: 8px; box-shadow: var(--shadow-lg); font-weight: 500; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; transform: translateY(100%); opacity: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);`;
-        toast.innerHTML = `<i class="ph ${icon}" style="font-size: 1.25rem;"></i> ${message}`;
-        
-        container.appendChild(toast);
-        
-        requestAnimationFrame(() => {
-            toast.style.transform = 'translateY(0)';
-            toast.style.opacity = '1';
-        });
-        
-        setTimeout(() => {
-            toast.style.transform = 'translateY(10px)';
-            toast.style.opacity = '0';
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    }
-
-    function showConfirm(title, message, btnText, btnColor, onConfirm) {
-        const modal = document.getElementById('confirm-modal');
-        document.getElementById('confirm-title').innerText = title;
-        document.getElementById('confirm-msg').innerHTML = message;
-        
-        const okBtn = document.getElementById('confirm-ok-btn');
-        okBtn.innerText = btnText;
-        okBtn.style.background = btnColor;
-        
-        const handleConfirm = () => { cleanup(); onConfirm(); };
-        const handleCancel = () => cleanup();
-        
-        const cleanup = () => {
-            modal.style.display = 'none';
-            okBtn.removeEventListener('click', handleConfirm);
-            document.getElementById('confirm-cancel-btn').removeEventListener('click', handleCancel);
-        };
-        
-        okBtn.addEventListener('click', handleConfirm);
-        document.getElementById('confirm-cancel-btn').addEventListener('click', handleCancel);
-        
-        modal.style.display = 'flex';
-    }
-
-    let allInvoices = [];
-    let products = [];
-    let productsLoaded = false;
-    let currentPage = 1;
-    const rowsPerPage = 20;
-
-    const renderPaginationControls = (totalPages) => {
-        const container = document.getElementById('pagination-container');
-        if (!container) return;
-        
-        // Always render to show UI
-        let html = '';
-        const btnStyle = "display: flex; align-items: center; justify-content: center; font-weight: bold; border: none; background: transparent; color: var(--primary); cursor: pointer; transition: 0.2s;";
-        
-        html += `<button class="paginate-btn" data-page="${currentPage - 1}" ${currentPage === 1 ? `disabled style="opacity: 0.5; cursor: not-allowed; ${btnStyle}"` : `style="${btnStyle}"`}><i class="ph ph-caret-left" style="margin-right: 4px;"></i> Prev</button>`;
-        
-        let startPage = Math.max(1, currentPage - 2);
-        let endPage = Math.min(totalPages, startPage + 4);
-        if (endPage - startPage < 4) {
-            startPage = Math.max(1, endPage - 4);
-        }
-
-        if (startPage > 1) {
-            html += `<button class="paginate-btn" data-page="1" style="width: 36px; height: 36px; border-radius: 50%; ${btnStyle}">1</button>`;
-            if (startPage > 2) html += `<span style="color: var(--primary); font-weight: bold; padding: 0 4px;">...</span>`;
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            if (i === currentPage) {
-                html += `<button style="width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; background: #2DD4BF; color: white; border: none; pointer-events: none; box-shadow: 0 4px 6px -1px rgba(45,212,191,0.5);">${i}</button>`;
-            } else {
-                html += `<button class="paginate-btn" data-page="${i}" style="width: 36px; height: 36px; border-radius: 50%; ${btnStyle}">${i}</button>`;
-            }
-        }
-
-        if (endPage < totalPages) {
-            if (endPage < totalPages - 1) html += `<span style="color: var(--primary); font-weight: bold; padding: 0 4px;">...</span>`;
-            html += `<button class="paginate-btn" data-page="${totalPages}" style="width: 36px; height: 36px; border-radius: 50%; ${btnStyle}">${totalPages}</button>`;
-        }
-
-        html += `<button class="paginate-btn" data-page="${currentPage + 1}" ${currentPage === totalPages ? `disabled style="opacity: 0.5; cursor: not-allowed; ${btnStyle}"` : `style="${btnStyle}"`}>Next <i class="ph ph-caret-right" style="margin-left: 4px;"></i></button>`;
-
-        container.innerHTML = `<div style="background: white; padding: 8px 20px; border-radius: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px;">${html}</div>`;
-
-        container.querySelectorAll('.paginate-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                if (btn.hasAttribute('disabled')) return;
-                const newPage = parseInt(e.currentTarget.getAttribute('data-page'));
-                if (newPage >= 1 && newPage <= totalPages) {
-                    currentPage = newPage;
-                    renderTable();
-                }
-            });
-        });
-    };
-
-    const loadInvoices = async () => {
-        const tbody = document.getElementById('invoices-tbody');
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);"><i class="ph ph-spinner ph-spin" style="font-size: 2rem;"></i></td></tr>';
-
-        const schoolId = localStorage.getItem('selected_school_id');
-
-        let invoices, invErr;
-
-        if (!productsLoaded) {
-            let inventory, books, invErrGlobal, bookErrGlobal;
-            [ 
-                { data: invoices, error: invErr },
-                { data: inventory, error: invErrGlobal },
-                { data: books, error: bookErrGlobal }
-            ] = await Promise.all([
-                supabase.from('invoices').select('*, students(first_name, last_name, grade_section, school_name, parent_contact)').eq('school_id', schoolId).order('created_at', { ascending: false }),
-                supabase.from('inventory_items').select('*').eq('school_id', schoolId),
-                supabase.from('Stationery Details').select('*').eq('school_id', schoolId)
-            ]);
-
-            products = [];
-            if (!invErrGlobal && inventory) products.push(...inventory.map(i => ({ id: String(i.id), name: i.item_name || 'Unknown' })));
-            if (!bookErrGlobal && books) products.push(...books.map(b => ({ id: String(b.id), name: b['Book Name'] || 'Unknown Book' })));
-            if (!invErrGlobal && !bookErrGlobal) productsLoaded = true;
-        } else {
-            const res = await supabase.from('invoices').select('*, students(first_name, last_name, grade_section, school_name, parent_contact)').eq('school_id', schoolId).order('created_at', { ascending: false });
-            invoices = res.data;
-            invErr = res.error;
-        }
-
         if (invErr) {
             tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 24px; color: #EF4444;"><b>Error:</b> ${invErr.message}</td></tr>`;
             return;
@@ -289,20 +18,11 @@ export async function renderInvoices(container) {
         document.getElementById('metric-paid').innerText = '₹' + totalPaid.toFixed(2);
         document.getElementById('metric-pending').innerText = '₹' + totalPending.toFixed(2);
 
-        let filtered = filterStr === 'ALL' ? allInvoices : 
+        const filtered = filterStr === 'ALL' ? allInvoices : 
                          (filterStr === 'PENDING' ? allInvoices.filter(i => i.status === 'PENDING' || i.status === 'UNPAID') : 
                          (filterStr === 'RETURNED' ? allInvoices.filter(i => i.status === 'RETURNED' || (i.notes && i.notes.includes('Refund'))) :
                          (filterStr === 'PAID' ? allInvoices.filter(i => i.status && i.status.startsWith('PAID')) :
                          allInvoices.filter(i => i.status === filterStr))));
-
-        const searchStr = (document.getElementById('invoice-search')?.value || '').toLowerCase().trim();
-        if (searchStr) {
-            filtered = filtered.filter(i => {
-                const sName = (i.students ? i.students.first_name + ' ' + i.students.last_name : '').toLowerCase();
-                const invNo = String(i.seq_no).toLowerCase();
-                return sName.includes(searchStr) || invNo.includes(searchStr);
-            });
-        }
 
         if (filtered.length === 0) {
             tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">No invoices found matching currently selected filter (${filterStr}).</td></tr>`;
@@ -368,28 +88,28 @@ export async function renderInvoices(container) {
                             try {
                                 if (l.product_type === 'BOOK') {
                                     const { data: bData } = await supabase.from('Stationery Details').select('"Book Name"').eq('id', l.product_id).single();
-                                    productName = bData ? bData['Book Name'] : `Unknown Book (ID: ${l.product_id})`;
+                                    productName = bData ? bData['Book Name'] : \`Unknown Book (ID: \${l.product_id})\`;
                                 } else {
                                     const { data: iData } = await supabase.from('inventory_items').select('item_name').eq('id', l.product_id).single();
-                                    productName = iData ? iData.item_name : `Unknown Item (ID: ${l.product_id})`;
+                                    productName = iData ? iData.item_name : \`Unknown Item (ID: \${l.product_id})\`;
                                 }
                             } catch (e) {
-                                productName = `Unknown [ID:${String(l.product_id).substring(0,8)}]`;
+                                productName = \`Unknown [ID:\${String(l.product_id).substring(0,8)}]\`;
                             }
                         }
 
                         // Add to html block
-                        htmlList += `
+                        htmlList += \`
                         <li style="display: grid; grid-template-columns: 80px 1fr 120px 160px; align-items: center; border-bottom: 1px solid #E2E8F0; padding: 20px 0; font-size: 1.1rem; transition: background 0.2s;">
-                            <span style="font-weight: 800; color: var(--primary); font-size: 1.3rem;">${l.quantity}</span> 
-                            <span style="font-weight: 600; color: var(--text-main);">${productName}</span>
-                            <span style="font-weight: 800; color: var(--text-main); text-align: right; padding-right: 10px;">₹${Number(l.subtotal).toFixed(2)}</span>
+                            <span style="font-weight: 800; color: var(--primary); font-size: 1.3rem;">\${l.quantity}</span> 
+                            <span style="font-weight: 600; color: var(--text-main);">\${productName}</span>
+                            <span style="font-weight: 800; color: var(--text-main); text-align: right; padding-right: 10px;">₹\${Number(l.subtotal).toFixed(2)}</span>
                             <div style="text-align: right; display: flex; justify-content: flex-end; gap: 4px;">
-                                <button class="btn btn-ghost add-qty-btn" data-line-id="${l.id}" data-inv-id="${id}" data-prod-type="${l.product_type}" data-prod-id="${l.product_id}" data-unit-price="${l.unit_price}" data-qty="${l.quantity}" data-prod-name="${productName.replace(/"/g, '&quot;')}" style="color: #3B82F6; padding: 6px 8px; font-size: 0.85rem;" title="Add quantity to this item"><i class="ph ph-plus"></i> Add</button>
-                                <button class="btn btn-ghost return-item-btn" data-line-id="${l.id}" data-inv-id="${id}" data-prod-type="${l.product_type}" data-prod-id="${l.product_id}" data-unit-price="${l.unit_price}" data-max-qty="${l.quantity}" data-prod-name="${productName.replace(/"/g, '&quot;')}" style="color: #EF4444; padding: 6px 8px; font-size: 0.85rem;" title="Return this item"><i class="ph ph-arrow-u-up-left"></i> Return</button>
+                                <button class="btn btn-ghost add-qty-btn" data-line-id="\${l.id}" data-inv-id="\${id}" data-prod-type="\${l.product_type}" data-prod-id="\${l.product_id}" data-unit-price="\${l.unit_price}" data-qty="\${l.quantity}" data-prod-name="\${productName.replace(/"/g, '&quot;')}" style="color: #3B82F6; padding: 6px 8px; font-size: 0.85rem;" title="Add quantity to this item"><i class="ph ph-plus"></i> Add</button>
+                                <button class="btn btn-ghost return-item-btn" data-line-id="\${l.id}" data-inv-id="\${id}" data-prod-type="\${l.product_type}" data-prod-id="\${l.product_id}" data-unit-price="\${l.unit_price}" data-max-qty="\${l.quantity}" data-prod-name="\${productName.replace(/"/g, '&quot;')}" style="color: #EF4444; padding: 6px 8px; font-size: 0.85rem;" title="Return this item"><i class="ph ph-arrow-u-up-left"></i> Return</button>
                             </div>
                         </li>
-                        `;
+                        \`;
                     }
                     ul.innerHTML = htmlList;
 
@@ -404,7 +124,7 @@ export async function renderInvoices(container) {
 
                             showConfirm(
                                 'Process Return', 
-                                `Are you sure you want to return ALL <b>${returnQty}</b> of this item?<br><br>This will naturally update the current invoice, deduct the total, and smoothly generate a corresponding Return Record while restoring your inventory stock.`,
+                                \`Are you sure you want to return ALL <b>\${returnQty}</b> of this item?<br><br>This will naturally update the current invoice, deduct the total, and smoothly generate a corresponding Return Record while restoring your inventory stock.\`,
                                 'Yes, Return Item',
                                 '#EF4444',
                                 async () => {
@@ -473,8 +193,8 @@ export async function renderInvoices(container) {
                                 // 4. Restore Physical Stock explicitly ONLY for the physically returned returnedQty!
                                 if (targetInv && (targetInv.status.startsWith('PAID') || targetInv.status === 'UPDATED')) {
                                     if (prodType === 'STATIONERY' || prodType === 'BOOK' || prodType === 'SET') {
-                                        const { data: currentBk, error: currentBkErr } = await supabase.from('Stationery Details').select('remaining_stock').eq('id', prodId).single();
-                                        if (!currentBkErr && currentBk) {
+                                        const { data: currentBk } = await supabase.from('Stationery Details').select('remaining_stock').eq('id', prodId).single();
+                                        if (currentBk) {
                                             await supabase.from('Stationery Details').update({ remaining_stock: (currentBk.remaining_stock ?? 0) + returnQty }).eq('id', prodId);
                                         }
                                     }
@@ -488,7 +208,7 @@ export async function renderInvoices(container) {
                                 // Auto-pop the newly generated return bill receipt!
                                 if (newlyCreatedId) {
                                     setTimeout(() => {
-                                        const receiptTargetBtn = document.querySelector(`.receipt-btn[data-id="${newlyCreatedId}"]`);
+                                        const receiptTargetBtn = document.querySelector(\`.receipt-btn[data-id="\${newlyCreatedId}"]\`);
                                         if (receiptTargetBtn) receiptTargetBtn.click();
                                     }, 400); // UI delay for rendering
                                 }
@@ -510,7 +230,7 @@ export async function renderInvoices(container) {
                             
                             showConfirm(
                                 'Add More Quantity',
-                                `How many additional units of <b>${prodName}</b> would you like to add to this invoice? <br><br><input type="number" id="extra-add-qty" min="1" value="1" style="width:100%; padding: 10px; margin-top:10px; border-radius: 8px; border: 1px solid var(--border);">`,
+                                \`How many additional units of <b>\${prodName}</b> would you like to add to this invoice? <br><br><input type="number" id="extra-add-qty" min="1" value="1" style="width:100%; padding: 10px; margin-top:10px; border-radius: 8px; border: 1px solid var(--border);">\`,
                                 'Add Quantity',
                                 '#3B82F6',
                                 async () => {
@@ -544,8 +264,8 @@ export async function renderInvoices(container) {
                                         
                                         if (curInvTemp.status === 'PENDING') {
                                             const stockPromises = newItems.filter(item => ['STATIONERY','BOOK','SET'].includes(item.product_type)).map(async (item) => {
-                                                const { data: sd, error: sdErr } = await supabase.from('Stationery Details').select('remaining_stock').eq('id', item.product_id).single();
-                                                if (!sdErr && sd) {
+                                                const { data: sd } = await supabase.from('Stationery Details').select('remaining_stock').eq('id', item.product_id).single();
+                                                if (sd) {
                                                     const newStock = Math.max(0, (sd.remaining_stock ?? 0) - item.quantity);
                                                     await supabase.from('Stationery Details').update({ remaining_stock: newStock }).eq('id', item.product_id);
                                                 }
@@ -553,10 +273,9 @@ export async function renderInvoices(container) {
                                             await Promise.all(stockPromises);
                                         } else {
                                             if (prodType === 'STATIONERY' || prodType === 'BOOK' || prodType === 'SET') {
-                                                const { data: stockInfo, error: stError } = await supabase.from('Stationery Details').select('remaining_stock').eq('id', prodId).single();
-                                                if (stError) throw new Error("Could not verify remaining stock natively.");
+                                                const { data: stockInfo } = await supabase.from('Stationery Details').select('remaining_stock').eq('id', prodId).single();
                                                 const currentStock = stockInfo ? stockInfo.remaining_stock : 0;
-                                                if (currentStock < addQty) throw new Error(`Insufficient stock for extra units!`);
+                                                if (currentStock < addQty) throw new Error(\`Insufficient stock for extra units!\`);
                                                 await supabase.from('Stationery Details').update({ remaining_stock: (currentStock - addQty) }).eq('id', prodId);
                                             }
                                         }
@@ -592,7 +311,7 @@ export async function renderInvoices(container) {
                                         await loadInvoices();
 
                                         setTimeout(() => {
-                                            const receiptBtn = document.querySelector(`.receipt-btn[data-id="${newlyCreatedId}"]`);
+                                            const receiptBtn = document.querySelector(\`.receipt-btn[data-id="\${newlyCreatedId}"]\`);
                                             if (receiptBtn) receiptBtn.click();
                                         }, 400);
                                     } catch(err) {
@@ -622,7 +341,7 @@ export async function renderInvoices(container) {
                             if (p.type === 'BOOK' && targetClass && p.class && p.class.toUpperCase() !== targetClass.toUpperCase()) {
                                 return; // Automatically skip books meant for other classes
                             }
-                            opts += `<option value="${p.id}" data-type="${p.type}" data-price="${p.price}" data-name="${p.name.replace(/"/g, '&quot;')}">${p.name} - ₹${Number(p.price).toFixed(2)}</option>`;
+                            opts += \`<option value="\${p.id}" data-type="\${p.type}" data-price="\${p.price}" data-name="\${p.name.replace(/"/g, '&quot;')}">\${p.name} - ₹\${Number(p.price).toFixed(2)}</option>\`;
                         });
                         newItemSelect.innerHTML = opts;
                         addNewSection.style.display = 'flex';
@@ -639,7 +358,7 @@ export async function renderInvoices(container) {
 
                             showConfirm(
                                 'Add New Item',
-                                `Are you sure you want to add ${addQty}x <b>${option.getAttribute('data-name')}</b> to this invoice?`,
+                                \`Are you sure you want to add \${addQty}x <b>\${option.getAttribute('data-name')}</b> to this invoice?\`,
                                 'Add Item',
                                 '#3B82F6',
                                 async () => {
@@ -674,8 +393,8 @@ export async function renderInvoices(container) {
 
                                         if (curInvTemp.status === 'PENDING') {
                                             const stockPromises = insertPayload.filter(item => ['STATIONERY','BOOK','SET'].includes(item.product_type)).map(async (item) => {
-                                                const { data: sd, error: sdErr } = await supabase.from('Stationery Details').select('remaining_stock').eq('id', item.product_id).single();
-                                                if (!sdErr && sd) {
+                                                const { data: sd } = await supabase.from('Stationery Details').select('remaining_stock').eq('id', item.product_id).single();
+                                                if (sd) {
                                                     const newStock = Math.max(0, (sd.remaining_stock ?? 0) - item.quantity);
                                                     await supabase.from('Stationery Details').update({ remaining_stock: newStock }).eq('id', item.product_id);
                                                 }
@@ -683,10 +402,9 @@ export async function renderInvoices(container) {
                                             await Promise.all(stockPromises);
                                         } else {
                                             if (prodType === 'STATIONERY' || prodType === 'BOOK' || prodType === 'SET') {
-                                                const { data: stockInfo, error: stErr2 } = await supabase.from('Stationery Details').select('remaining_stock').eq('id', prodId).single();
-                                                if(stErr2) throw new Error("Could not fetch remote stock matrix.");
+                                                const { data: stockInfo } = await supabase.from('Stationery Details').select('remaining_stock').eq('id', prodId).single();
                                                 const currentStock = stockInfo ? stockInfo.remaining_stock : 0;
-                                                if (currentStock < addQty) throw new Error(`Insufficient stock for new item!`);
+                                                if (currentStock < addQty) throw new Error(\`Insufficient stock for new item!\`);
                                                 await supabase.from('Stationery Details').update({ remaining_stock: (currentStock - addQty) }).eq('id', prodId);
                                             }
                                         }
@@ -715,7 +433,7 @@ export async function renderInvoices(container) {
                                         await loadInvoices();
                                         
                                         setTimeout(() => {
-                                            const receiptBtn = document.querySelector(`.receipt-btn[data-id="${newlyCreatedId}"]`);
+                                            const receiptBtn = document.querySelector(\`.receipt-btn[data-id="\${newlyCreatedId}"]\`);
                                             if (receiptBtn) receiptBtn.click();
                                         }, 400);
 
@@ -737,11 +455,11 @@ export async function renderInvoices(container) {
                 if (invData) {
                     const stu = invData.students;
                     if (stu) {
-                        document.getElementById('view-student-details').innerHTML = `
-                            <span style="font-weight: 800; color: var(--text-main); font-size: 1.3rem; margin-bottom: 4px; display: block;">${stu.first_name || ''} ${stu.last_name || ''}</span>
-                            <span style="display: flex; align-items: center; gap: 8px;"><i class="ph ph-buildings"></i> ${stu.school_name || 'N/A'}</span>
-                            <span style="display: flex; align-items: center; gap: 8px;"><i class="ph ph-graduation-cap"></i> Class ${stu.grade_section || 'N/A'}</span>
-                        `;
+                        document.getElementById('view-student-details').innerHTML = \`
+                            <span style="font-weight: 800; color: var(--text-main); font-size: 1.3rem; margin-bottom: 4px; display: block;">\${stu.first_name || ''} \${stu.last_name || ''}</span>
+                            <span style="display: flex; align-items: center; gap: 8px;"><i class="ph ph-buildings"></i> \${stu.school_name || 'N/A'}</span>
+                            <span style="display: flex; align-items: center; gap: 8px;"><i class="ph ph-graduation-cap"></i> Class \${stu.grade_section || 'N/A'}</span>
+                        \`;
                     } else {
                         document.getElementById('view-student-details').innerText = 'Student Details Unavailable';
                     }
@@ -834,7 +552,7 @@ export async function renderInvoices(container) {
                     showToast('Invoice physically marked as PAID!', 'success');
                     
                     // Automatically pop the Receipt!
-                    const targetBtn = document.querySelector(`.receipt-btn[data-id="${id}"]`);
+                    const targetBtn = document.querySelector(\`.receipt-btn[data-id="\${id}"]\`);
                     if(targetBtn) targetBtn.click();
                     
                 } catch (err) {
@@ -849,8 +567,6 @@ export async function renderInvoices(container) {
     };
 
     document.getElementById('status-filter').addEventListener('change', () => { currentPage = 1; renderTable(); });
-    const searchInput = document.getElementById('invoice-search');
-    if (searchInput) searchInput.addEventListener('input', () => { currentPage = 1; renderTable(); });
     document.getElementById('close-view-btn').addEventListener('click', () => document.getElementById('view-modal').style.display = 'none');
 
     document.getElementById('export-csv-btn').addEventListener('click', async (e) => {
@@ -861,20 +577,11 @@ export async function renderInvoices(container) {
 
         try {
             const filterStr = document.getElementById('status-filter').value;
-            let filtered = filterStr === 'ALL' ? allInvoices : 
+            const filtered = filterStr === 'ALL' ? allInvoices : 
                              (filterStr === 'PENDING' ? allInvoices.filter(i => i.status === 'PENDING' || i.status === 'UNPAID') : 
                              (filterStr === 'RETURNED' ? allInvoices.filter(i => i.status === 'RETURNED' || (i.notes && i.notes.includes('Refund'))) :
                              (filterStr === 'PAID' ? allInvoices.filter(i => i.status && i.status.startsWith('PAID')) :
                              allInvoices.filter(i => i.status === filterStr))));
-            
-            const searchStr = (document.getElementById('invoice-search')?.value || '').toLowerCase().trim();
-            if (searchStr) {
-                filtered = filtered.filter(i => {
-                    const sName = (i.students ? i.students.first_name + ' ' + i.students.last_name : '').toLowerCase();
-                    const invNo = String(i.seq_no).toLowerCase();
-                    return sName.includes(searchStr) || invNo.includes(searchStr);
-                });
-            }
 
             if (filtered.length === 0) {
                 showToast("No invoices to export based on current filter.", "error");
@@ -980,7 +687,7 @@ export async function generateExcelForInvoices(filtered) {
 
         // 3. Build Class Rows
         classInvoices.forEach((inv, index) => {
-            const studentName = inv.students ? `${inv.students.first_name || ''} ${inv.students.last_name || ''}`.trim() : 'Unknown';
+            const studentName = inv.students ? \`\${inv.students.first_name || ''} \${inv.students.last_name || ''}\`.trim() : 'Unknown';
             
             let payMode = 'N/A';
             if (inv.status && inv.status.startsWith('PAID_')) payMode = inv.status.split('_')[1];
@@ -1085,5 +792,5 @@ export async function generateExcelForInvoices(filtered) {
     XLSX.utils.book_append_sheet(wb, summaryWs, "Revenue Summary");
 
     const dtStr = new Date().toISOString().slice(0, 10);
-    XLSX.writeFile(wb, `Student_Invoices_${dtStr}.xlsx`);
+    XLSX.writeFile(wb, \`Student_Invoices_\${dtStr}.xlsx\`);
 }

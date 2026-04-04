@@ -43,21 +43,34 @@ async function loadDashboardStats() {
     const schoolId = localStorage.getItem('selected_school_id');
     const [
         { count: studentCount, error: e1 },
-        { count: inventoryCount, error: e2 },
         { data: invoices, error: e3 }
     ] = await Promise.all([
         supabase.from('students').select('*', { count: 'exact', head: true }).eq('school_id', schoolId),
-        supabase.from('inventory_items').select('*', { count: 'exact', head: true }).eq('school_id', schoolId),
-        supabase.from('invoices').select('total_amount, status').eq('school_id', schoolId)
+        supabase.from('invoices').select('id, total_amount, status, created_at, students(first_name, last_name, grade_section)').eq('school_id', schoolId)
     ]);
 
-    if(e1 || e2 || e3) {
+    if(e1 || e3) {
         statsContainer.innerHTML = `<div style="color:red;">Error loading stats. Check database connection.</div>`;
         return;
     }
 
-    const totalRevenue = invoices.filter(inv => inv.status === 'PAID').reduce((sum, inv) => sum + Number(inv.total_amount), 0);
+    const todayStr = new Date().toLocaleDateString('en-CA');
+    
+    // Total Revenue represents all historical PAID or RETURNED/UPDATED (captures residual/net payments cleanly)
+    const totalRevenue = invoices.filter(inv => {
+        return (inv.status && inv.status.startsWith('PAID')) || inv.status === 'RETURNED' || inv.status === 'UPDATED';
+    }).reduce((sum, inv) => sum + Number(inv.total_amount), 0);
+    
     const pendingCount = invoices.filter(inv => inv.status === 'PENDING' || inv.status === 'UNPAID').length;
+
+    // Today's Revenue and strict Excel Payload mapping tightly
+    const todaysInvoices = invoices.filter(inv => {
+        if (!(inv.status && inv.status.startsWith('PAID')) && inv.status !== 'UPDATED' && inv.status !== 'RETURNED') return false;
+        const invDate = new Date(inv.created_at).toLocaleDateString('en-CA');
+        return invDate === todayStr;
+    });
+
+    const todayRevenue = todaysInvoices.reduce((sum, inv) => sum + Number(inv.total_amount), 0);
 
     statsContainer.innerHTML = `
         <div class="card">
@@ -69,13 +82,15 @@ async function loadDashboardStats() {
             <p style="color: var(--secondary); font-size: 0.85rem; font-weight: 500;">Lifetime sales</p>
         </div>
         
-        <div class="card">
+        <div class="card" style="border: 1px solid #E0E7FF;">
             <div class="card-header">
-                <span class="card-title">Unique Inventory</span>
-                <div class="icon-btn" style="color: var(--primary); border:none; background: #E0E7FF;"><i class="ph ph-archive-box"></i></div>
+                <span class="card-title">Today's Revenue</span>
+                <button id="dash-export-today-btn" class="icon-btn" style="color: var(--primary); border:none; background: #E0E7FF; cursor: pointer; transition: 0.2s;" title="Download Today's Excel">
+                    <i class="ph ph-download-simple"></i>
+                </button>
             </div>
-            <h2 style="font-size: 2rem; margin-bottom: 8px;">${inventoryCount || 0}</h2>
-            <p style="color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">Item types in catalog</p>
+            <h2 style="font-size: 2rem; margin-bottom: 8px; color: var(--primary);">₹${todayRevenue.toFixed(2)}</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">Sales made today</p>
         </div>
         
         <div class="card">
@@ -96,6 +111,31 @@ async function loadDashboardStats() {
             <p style="color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">Awaiting payment</p>
         </div>
     `;
+
+    const dlBtn = document.getElementById('dash-export-today-btn');
+    if (dlBtn) {
+        dlBtn.addEventListener('click', async (e) => {
+            const btn = e.currentTarget;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i>';
+            btn.disabled = true;
+
+            try {
+                if (todaysInvoices.length === 0) {
+                    alert("No sales recorded today to export.");
+                } else {
+                    const m = await import('./invoices.js?v=2000');
+                    await m.generateExcelForInvoices(todaysInvoices);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error exporting: " + err.message);
+            }
+
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        });
+    }
 }
 
 async function loadRecentTransactions() {

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Console - Mint Accounts</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 20px;
+        }
+        .login-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%; padding: 10px; border-radius: var(--radius-md); border: 1px solid var(--border); outline: none; transition: border-color 0.2s;
+        }
+        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+            border-color: var(--primary);
+        }
+        
+        .supplier-block { background: #F8FAFC; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; }
+        .supplier-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .sub-school { background: white; border: 1px solid #E2E8F0; padding: 12px 16px; border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .stat-badge { background: #EFF6FF; color: var(--primary); padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; }
+    </style>
+</head>
+<body>
+    <!-- PHASE 1: MASTER AUTHENTICATION GATE -->
+    <div id="admin-auth-gate" class="login-box fade-in" style="max-width: 400px; display: none;">
+        <div style="text-align: center; margin-bottom: 24px;">
+            <i class="ph ph-lock-key" style="font-size: 2.5rem; color: #EF4444; margin-bottom: 8px;"></i>
+            <h1 style="color: var(--text-main); font-weight: 700; font-size: 1.5rem; margin-bottom: 4px;">Restricted Access</h1>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Please enter Master Architect credentials to continue.</p>
+        </div>
+        <form id="admin-gate-form" style="display: flex; flex-direction: column; gap: 16px;">
+            <div>
+                <label>Admin ID (Email)</label>
+                <input type="email" id="gate-email" required>
+            </div>
+            <div>
+                <label>Master Password</label>
+                <input type="password" id="gate-pass" required>
+            </div>
+            <p id="gate-error" style="color: #EF4444; font-size: 0.85rem; text-align: center; min-height: 16px; margin: 0;"></p>
+            <button type="submit" class="btn btn-primary" id="gate-btn" style="padding: 14px; background: #111827; border: none;">Unlock Console</button>
+            <a href="login.html" style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; text-decoration: underline;">Return to public portal</a>
+        </form>
+    </div>
+
+    <!-- PHASE 2: GLOBAL ECOSYSTEM (Hidden by default) -->
+    <div id="admin-console-wrapper" style="display: none; gap: 40px; width: 100%; max-width: 1400px; height: 90vh;">
+        <!-- Left Panel: Minting Form -->
+        <div class="login-box fade-in" style="flex: 1; max-width: 450px; overflow-y: auto;">
+            <div style="text-align: center; margin-bottom: 32px;">
+                <div style="background: #E0E7FF; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                    <i class="ph ph-shield-check" style="font-size: 1.5rem; color: var(--primary);"></i>
+                </div>
+                <h1 style="color: var(--text-main); font-weight: 700; font-size: 1.8rem; margin-bottom: 4px;">Master Console</h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Secure Platform Architect Minting</p>
+            </div>
+
+            <form id="admin-signup-form" style="display: flex; flex-direction: column; gap: 16px;">
+                <div style="display: flex; gap: 12px;">
+                    <div style="flex: 1;">
+                        <label>Full Name *</label>
+                        <input type="text" id="admin-name" required>
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Account Email *</label>
+                        <input type="email" id="admin-email" required>
+                    </div>
+                </div>
+                
+                <div style="background: #F8FAFC; padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                    <label style="color: var(--text-main); font-weight: 700; font-size: 0.9rem; margin-bottom: 12px;">Select Isolated Role *</label>
+                    <div style="display: flex; gap: 20px;">
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.95rem; cursor: pointer; color: #475569;">
+                            <input type="radio" name="role" value="SCHOOL" required id="role-school" style="width: 16px; height: 16px; accent-color: var(--primary);"> Independent School
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.95rem; cursor: pointer; color: #475569;">
+                            <input type="radio" name="role" value="SUPPLIER" required id="role-supplier" style="width: 16px; height: 16px; accent-color: var(--primary);"> Master Supplier
+                        </label>
+                    </div>
+                </div>
+
+                <div id="school-name-container" style="display: none;">
+                    <label>Institution / School Name *</label>
+                    <input type="text" id="admin-schoolname">
+                </div>
+
+                <div style="display: flex; gap: 12px;">
+                    <div style="flex: 1;">
+                        <label>Initial Password *</label>
+                        <input type="password" id="admin-pass" required>
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Confirm Password *</label>
+                        <input type="password" id="admin-confirm" required>
+                    </div>
+                </div>
+
+                <p id="admin-error" style="color: #EF4444; font-size: 0.85rem; text-align: center; min-height: 16px; margin: 0;"></p>
+                <p id="admin-success" style="color: #10B981; font-size: 0.85rem; text-align: center; min-height: 16px; margin: 0;"></p>
+
+                <button type="submit" class="btn btn-primary" id="admin-signup-btn" style="padding: 14px; margin-top: 8px;">Mint Multi-Tenant Account</button>
+            </form>
+        </div>
+
+        <!-- Right Panel: Dashboard -->
+        <div class="fade-in" style="flex: 2; background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: var(--radius-lg); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 24px;">
+                <h2 style="color: var(--text-main); font-weight: 700; margin: 0; font-size: 1.5rem;"><i class="ph ph-globe" style="margin-right: 8px;"></i> Global Ecosystem Metrics</h2>
+                <button id="logout-btn" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">Secure Logout</button>
+            </div>
+            
+            <div id="stats-loading" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted);">
+                <i class="ph ph-spinner ph-spin" style="font-size: 3rem; margin-bottom: 16px;"></i>
+                <p>Pulling isolated live analytics...</p>
+            </div>
+
+            <div id="stats-container" style="display: none; flex: 1; flex-direction: column; gap: 24px; overflow-y: auto; padding-right: 12px;">
+                <!-- Structure built via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/admin-portal.js"></script>
+</body>
+</html>

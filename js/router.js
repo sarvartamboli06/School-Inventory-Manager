@@ -1,9 +1,9 @@
-import { renderDashboard } from './views/dashboard.js?v=1001';
-import { renderBooks } from './views/books.js?v=1001';
-import { renderStudents } from './views/students.js?v=1001';
-import { renderInventory } from './views/inventory.js?v=1001';
-import { renderBilling } from './views/billing.js?v=1001';
-import { renderInvoices } from './views/invoices.js?v=1001';
+import { renderDashboard } from './views/dashboard.js?v=2000';
+import { renderBooks } from './views/books.js?v=2000';
+import { renderStudents } from './views/students.js?v=2000';
+import { renderInventory } from './views/inventory.js?v=2000';
+import { renderBilling } from './views/billing.js?v=2000';
+import { renderInvoices } from './views/invoices.js?v=2000';
 
 export const router = {
     routes: {

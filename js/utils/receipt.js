@@ -78,8 +78,12 @@ export function showReceiptModal(invoice) {
 
                     <div style="border-top: 1px dashed black; margin-bottom: 8px;"></div>
 
-                    <div style="font-size: 0.9rem; font-weight: bold; margin-bottom: 16px;">
+                    <div style="font-size: 0.9rem; font-weight: bold; margin-bottom: 4px;">
                         Amount in Words: <span id="rcpt-words" style="font-weight: normal;">Zero</span>
+                    </div>
+
+                    <div id="rcpt-payment-mode-container" style="font-size: 0.9rem; font-weight: bold; margin-bottom: 16px; display: none;">
+                        Payment Mode: <span id="rcpt-payment-mode" style="font-weight: normal;">-</span>
                     </div>
 
                     <div style="border-top: 1px dashed black; margin-bottom: 16px;"></div>
@@ -168,13 +172,46 @@ export function showReceiptModal(invoice) {
     document.getElementById('rcpt-grand-total').innerText = '₹' + Number(invoice.total_amount).toFixed(2);
     document.getElementById('rcpt-words').innerText = `Rupees ${numberToWords(Math.round(invoice.total_amount))} Only`;
 
-    // PAID Stamp logic
-    document.getElementById('rcpt-paid-stamp').style.display = invoice.status === 'PAID' ? 'block' : 'none';
+    // Payment Mode Extractions dynamically tracking explicit metadata formats natively bypassing raw prints
+    const pmContainer = document.getElementById('rcpt-payment-mode-container');
+    const pmText = document.getElementById('rcpt-payment-mode');
+    let displayNotes = invoice.notes ? String(invoice.notes) : null;
+    let extractedMode = null;
 
-    // REMARKS logic
+    if (invoice.status && invoice.status.startsWith('PAID_')) {
+        extractedMode = invoice.status.split('_')[1];
+    } else if (invoice.status === 'UPDATED') {
+        extractedMode = 'AUTO-DEDUCT';
+    }
+
+    if (displayNotes && displayNotes.includes('Payment Mode:')) {
+        const parts = displayNotes.split('Payment Mode:');
+        if (parts.length > 1) {
+            const rawVal = parts[1];
+            const nlIdx = rawVal.indexOf('\n');
+            if (!extractedMode) {
+                extractedMode = (nlIdx > -1 ? rawVal.substring(0, nlIdx) : rawVal).trim();
+            }
+            displayNotes = parts[0].trim() + (nlIdx > -1 ? rawVal.substring(nlIdx) : '').trim();
+            displayNotes = displayNotes.trim();
+            if (!displayNotes) displayNotes = null;
+        }
+    }
+
+    if (extractedMode) {
+        pmText.innerText = extractedMode.toUpperCase();
+        pmContainer.style.display = 'block';
+    } else {
+        pmContainer.style.display = 'none';
+    }
+
+    // PAID Stamp logic natively honoring custom configurations
+    document.getElementById('rcpt-paid-stamp').style.display = (invoice.status && invoice.status.startsWith('PAID')) ? 'block' : 'none';
+
+    // REMARKS logic properly filtering decoupled attributes 
     const remarksBanner = document.getElementById('rcpt-remarks-banner');
-    if (invoice.notes) {
-        remarksBanner.innerHTML = String(invoice.notes).replace(/\n/g, '<br>');
+    if (displayNotes) {
+        remarksBanner.innerHTML = String(displayNotes).replace(/\n/g, '<br>');
         remarksBanner.style.display = 'block';
     } else {
         remarksBanner.style.display = 'none';

@@ -45,6 +45,16 @@ export async function renderBilling(container) {
                 <div class="card" style="flex: 1; min-width: 300px; background: #F8FAFC; border: 1px solid var(--border);">
                     <h2 class="card-title" style="margin-bottom: 24px;">Order Summary</h2>
                     
+                    <!-- QR Upload feature -->
+                    <div style="margin-bottom: 20px; text-align: center; border: 1px dashed #CBD5E1; padding: 12px; border-radius: 8px; background: white;">
+                        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; margin-bottom: 8px;">
+                            <i class="ph ph-qr-code" style="font-size: 1.2rem; vertical-align: middle;"></i> Upload QR Code (Optional)
+                            <input type="file" id="qr-upload-input" accept="image/*" style="display: none;">
+                        </label>
+                        <img id="qr-preview-img" style="max-width: 100%; max-height: 500px; display: none; margin: 0 auto; border-radius: 4px; object-fit: contain;">
+                        <button id="qr-remove-btn" class="btn btn-ghost" style="display: none; width: 100%; margin-top: 8px; color: #EF4444; padding: 4px; font-size: 0.85rem;"><i class="ph ph-trash"></i> Remove QR</button>
+                    </div>
+
                     <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.95rem;">
                         <span style="color: var(--text-muted);">Subtotal</span>
                         <span style="font-weight: 600;" id="summary-subtotal">₹0.00</span>
@@ -53,6 +63,14 @@ export async function renderBilling(container) {
                     <div style="border-top: 1px dashed #CBD5E1; padding-top: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
                         <span style="font-size: 1.1rem; font-weight: 600;">Total</span>
                         <span style="font-size: 1.5rem; font-weight: 700; color: var(--primary);" id="summary-total">₹0.00</span>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Payment Mode</label>
+                        <select id="payment-mode-select" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); outline: none; background: white;">
+                            <option value="Cash">Cash</option>
+                            <option value="Online">Online</option>
+                        </select>
                     </div>
 
                     <div style="display: flex; gap: 12px; margin-top: 24px;">
@@ -77,13 +95,45 @@ export async function renderBilling(container) {
     const saveUnpaidBtn = document.getElementById('save-unpaid-btn');
     const markPaidBtn = document.getElementById('mark-paid-btn');
 
+    // QR Code Upload Logic
+    const qrInput = document.getElementById('qr-upload-input');
+    const qrImg = document.getElementById('qr-preview-img');
+    const qrRemoveBtn = document.getElementById('qr-remove-btn');
+    
+    if (qrInput) {
+        qrInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    qrImg.src = evt.target.result;
+                    qrImg.style.display = 'block';
+                    qrRemoveBtn.style.display = 'block';
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+        
+        qrRemoveBtn.addEventListener('click', () => {
+            qrInput.value = '';
+            qrImg.src = '';
+            qrImg.style.display = 'none';
+            qrRemoveBtn.style.display = 'none';
+        });
+    }
+
     try {
         const schoolId = localStorage.getItem('selected_school_id');
         // Fetch base lists natively
-        const [ {data: students}, {data: inventory} ] = await Promise.all([
+        const [ 
+            {data: students, error: stuErr}, 
+            {data: inventory, error: invErr} 
+        ] = await Promise.all([
             supabase.from('students').select('*').eq('school_id', schoolId),
             supabase.from('Stationery Details').select('*').eq('school_id', schoolId)
         ]);
+
+        if (stuErr) throw stuErr;
+        if (invErr) throw invErr;
 
         allStudents = students || [];
 
@@ -300,10 +350,22 @@ export async function renderBilling(container) {
         const total_amount = activeItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
         const schoolId = localStorage.getItem('selected_school_id');
 
+        let invoiceNotes = null;
+        if (statusLabel === 'PAID') {
+            const payMode = document.getElementById('payment-mode-select').value;
+            invoiceNotes = `Payment Mode: ${payMode}`;
+        }
+
+        let dbStatus = statusLabel;
+        if (statusLabel === 'PAID') {
+            const payMode = document.getElementById('payment-mode-select').value;
+            dbStatus = `PAID_${payMode}`;
+        }
+
         const { data: invoice, error: invError } = await supabase.from('invoices').insert([{
             student_id: activeStudent.id,
             total_amount: total_amount,
-            status: statusLabel,
+            status: dbStatus,
             school_id: schoolId
         }]).select('id').single();
 
@@ -335,17 +397,19 @@ export async function renderBilling(container) {
             // 5. Deduct explicit physical stock ONLY when the invoice is actually Mark PAID
             if (statusLabel === 'PAID') {
                 const stockPromises = activeItems.filter(i => i.type === 'BOOK').map(async (item) => {
-                    const { data: sd } = await supabase.from('Stationery Details').select('remaining_stock').eq('id', item.id).single();
-                    if (sd) {
+                    const { data: sd, error: sdErr } = await supabase.from('Stationery Details').select('remaining_stock').eq('id', item.id).single();
+                    if (!sdErr && sd) {
                         const newStock = Math.max(0, (sd.remaining_stock ?? 0) - item.qty);
                         await supabase.from('Stationery Details').update({ remaining_stock: newStock }).eq('id', item.id);
+                    } else if (sdErr) {
+                        console.error("Hardened Audit: Failed stock deduction verification for item: " + item.id, sdErr);
                     }
                 });
                 await Promise.all(stockPromises);
             }
 
             if (statusLabel === 'PAID') {
-                const receiptModule = await import('../utils/receipt.js?v=printable_v3');
+                const receiptModule = await import('../utils/receipt.js?v=printable_v6');
                 receiptModule.showReceiptModal({
                     id: invoice.id,
                     student_id: activeStudent.id,
@@ -353,9 +417,10 @@ export async function renderBilling(container) {
                     grade_section: activeStudent.grade_section,
                     parent_contact: activeStudent.parent_contact,
                     total_amount: total_amount,
-                    status: 'PAID',
+                    status: dbStatus,
                     created_at: new Date().toISOString(),
                     seq_no: sequenceNumber,
+                    notes: invoiceNotes,
                     items: activeItems.map(i => ({...i}))
                 });
             } else {

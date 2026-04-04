@@ -74,6 +74,18 @@ async function initAuth() {
         const sidebarSchoolDisplay = document.getElementById('sidebar-school-name');
         if (sidebarSchoolDisplay) sidebarSchoolDisplay.innerText = localStorage.getItem('selected_school_name') || 'Select School';
         
+        if (localStorage.getItem('user_role') === 'SCHOOL') {
+            const sidebarPill = document.getElementById('sidebar-school-pill');
+            if (sidebarPill) {
+                sidebarPill.removeAttribute('onclick');
+                sidebarPill.removeAttribute('onmouseover');
+                sidebarPill.removeAttribute('onmouseout');
+                sidebarPill.style.cursor = 'default';
+                const icon = sidebarPill.querySelector('.ph-arrows-left-right');
+                if(icon) icon.style.display = 'none';
+            }
+        }
+
         const logoutBtn = document.getElementById('sidebar-logout-btn');
         if(logoutBtn) {
             logoutBtn.addEventListener('click', async () => {
