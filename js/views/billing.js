@@ -409,7 +409,7 @@ export async function renderBilling(container) {
             }
 
             if (statusLabel === 'PAID') {
-                const receiptModule = await import('../utils/receipt.js?v=printable_v6');
+                const receiptModule = await import('../utils/receipt.js?v=printable_v8');
                 receiptModule.showReceiptModal({
                     id: invoice.id,
                     student_id: activeStudent.id,

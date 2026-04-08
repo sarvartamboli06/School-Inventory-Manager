@@ -58,14 +58,16 @@ async function loadDashboardStats() {
     
     // Total Revenue represents all historical PAID or RETURNED/UPDATED (captures residual/net payments cleanly)
     const totalRevenue = invoices.filter(inv => {
-        return (inv.status && inv.status.startsWith('PAID')) || inv.status === 'RETURNED' || inv.status === 'UPDATED';
+        if (!inv.status) return false;
+        return inv.status.startsWith('PAID') || inv.status.startsWith('RETURNED') || inv.status.startsWith('UPDATED');
     }).reduce((sum, inv) => sum + Number(inv.total_amount), 0);
     
     const pendingCount = invoices.filter(inv => inv.status === 'PENDING' || inv.status === 'UNPAID').length;
 
     // Today's Revenue and strict Excel Payload mapping tightly
     const todaysInvoices = invoices.filter(inv => {
-        if (!(inv.status && inv.status.startsWith('PAID')) && inv.status !== 'UPDATED' && inv.status !== 'RETURNED') return false;
+        if (!inv.status) return false;
+        if (!inv.status.startsWith('PAID') && !inv.status.startsWith('RETURNED') && !inv.status.startsWith('UPDATED')) return false;
         const invDate = new Date(inv.created_at).toLocaleDateString('en-CA');
         return invDate === todayStr;
     });
@@ -124,7 +126,7 @@ async function loadDashboardStats() {
                 if (todaysInvoices.length === 0) {
                     alert("No sales recorded today to export.");
                 } else {
-                    const m = await import('./invoices.js?v=2000');
+                    const m = await import('./invoices.js?v=2002');
                     await m.generateExcelForInvoices(todaysInvoices);
                 }
             } catch (err) {
@@ -159,7 +161,7 @@ async function loadRecentTransactions() {
             <td>${inv.students ? inv.students.first_name + ' ' + inv.students.last_name : 'Guest/Deleted'}</td>
             <td>${new Date(inv.created_at).toLocaleDateString()}</td>
             <td style="font-weight: 600;">₹${Number(inv.total_amount).toFixed(2)}</td>
-            <td><span class="status-badge ${inv.status === 'PAID' ? 'status-success' : 'status-warning'}">${inv.status}</span></td>
+            <td><span class="status-badge ${inv.status && inv.status.startsWith('PAID') ? 'status-success' : 'status-warning'}">${inv.status && inv.status.includes('_') ? inv.status.split('_')[0] : inv.status}</span></td>
         </tr>
     `).join('');
 }

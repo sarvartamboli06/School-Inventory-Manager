@@ -156,6 +156,7 @@ export function showReceiptModal(invoice) {
     const gradeClass = invoice.grade_section || 'UNKNOWN';
     document.getElementById('rcpt-student-name').innerText = studentName.toUpperCase();
     document.getElementById('rcpt-class').innerText = gradeClass.toUpperCase();
+    document.getElementById('rcpt-phone').innerText = invoice.parent_contact || '-';
     
     const itemsHtml = invoice.items.map((item, idx) => `
         <div style="display: grid; grid-template-columns: 60px 1fr 60px 100px 120px; padding: 4px 0;">
@@ -178,10 +179,10 @@ export function showReceiptModal(invoice) {
     let displayNotes = invoice.notes ? String(invoice.notes) : null;
     let extractedMode = null;
 
-    if (invoice.status && invoice.status.startsWith('PAID_')) {
+    if (invoice.status && invoice.status.includes('_')) {
         extractedMode = invoice.status.split('_')[1];
-    } else if (invoice.status === 'UPDATED') {
-        extractedMode = 'AUTO-DEDUCT';
+    } else if (invoice.status === 'PAID') {
+        extractedMode = 'UNKNOWN';
     }
 
     if (displayNotes && displayNotes.includes('Payment Mode:')) {

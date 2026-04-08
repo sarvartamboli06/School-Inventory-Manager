@@ -76,8 +76,8 @@ export async function renderBooks(container) {
                             "Rate": isNaN(rate) ? 0 : rate,
                             "Qty": 1,
                             "Amount": isNaN(rate) ? 0 : rate,
-                            total_stock: 100,
-                            remaining_stock: 100
+                            total_stock: 0,
+                            remaining_stock: 0
                         };
                     }).filter(item => item !== null);
 

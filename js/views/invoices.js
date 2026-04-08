@@ -45,6 +45,7 @@ export async function renderInvoices(container) {
                             <th>Date Generated</th>
                             <th>Student Ref</th>
                             <th>Status</th>
+                            <th>Payment Mode</th>
                             <th>Amount</th>
                             <th>Remarks</th>
                             <th style="width: 150px;">Actions</th>
@@ -284,16 +285,16 @@ export async function renderInvoices(container) {
         const filterStr = document.getElementById('status-filter').value;
 
         // Metric Math
-        const totalPaid = allInvoices.filter(i => (i.status && i.status.startsWith('PAID')) || i.status === 'UPDATED').reduce((sum, item) => sum + Number(item.total_amount), 0);
+        const totalPaid = allInvoices.filter(i => i.status && (i.status.startsWith('PAID') || i.status.startsWith('UPDATED'))).reduce((sum, item) => sum + Number(item.total_amount), 0);
         const totalPending = allInvoices.filter(i => i.status === 'PENDING' || i.status === 'UNPAID').reduce((sum, item) => sum + Number(item.total_amount), 0);
         document.getElementById('metric-paid').innerText = '₹' + totalPaid.toFixed(2);
         document.getElementById('metric-pending').innerText = '₹' + totalPending.toFixed(2);
 
         let filtered = filterStr === 'ALL' ? allInvoices : 
                          (filterStr === 'PENDING' ? allInvoices.filter(i => i.status === 'PENDING' || i.status === 'UNPAID') : 
-                         (filterStr === 'RETURNED' ? allInvoices.filter(i => i.status === 'RETURNED' || (i.notes && i.notes.includes('Refund'))) :
+                         (filterStr === 'RETURNED' ? allInvoices.filter(i => (i.status && i.status.startsWith('RETURNED')) || (i.notes && i.notes.includes('Refund'))) :
                          (filterStr === 'PAID' ? allInvoices.filter(i => i.status && i.status.startsWith('PAID')) :
-                         allInvoices.filter(i => i.status === filterStr))));
+                         allInvoices.filter(i => i.status && i.status.startsWith(filterStr)))));
 
         const searchStr = (document.getElementById('invoice-search')?.value || '').toLowerCase().trim();
         if (searchStr) {
@@ -313,7 +314,30 @@ export async function renderInvoices(container) {
         if (currentPage > totalPages) currentPage = totalPages || 1;
         const paginated = filtered.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
-        tbody.innerHTML = paginated.map(inv => `
+        tbody.innerHTML = paginated.map(inv => {
+            const rawStatus = inv.status || 'PENDING';
+            let logicalStatus = rawStatus;
+            let pMode = 'N/A';
+
+            if (rawStatus.includes('_')) {
+                const parts = rawStatus.split('_');
+                logicalStatus = parts[0];
+                pMode = parts[1].toUpperCase();
+            } else if (rawStatus === 'PAID') {
+                pMode = 'UNKNOWN';
+            }
+
+            let statusBadge = '';
+            if (logicalStatus === 'PAID') statusBadge = '<span class="status-badge status-success">💵 PAID</span>';
+            else if (logicalStatus === 'RETURNED') statusBadge = '<span class="status-badge status-error" style="background:#FEE2E2; color:#EF4444;">🔄 RETURNED</span>';
+            else if (logicalStatus === 'UPDATED') statusBadge = '<span class="status-badge status-warning" style="background:#FEF3C7; color:#D97706;">📝 UPDATED</span>';
+            else statusBadge = `<span class="status-badge status-warning">⏳ ${logicalStatus}</span>`;
+
+            const pmText = pMode === 'CASH' ? '<span style="font-weight:700; color:#10B981;">CASH</span>' : 
+                           pMode === 'ONLINE' ? '<span style="font-weight:700; color:#3B82F6;">ONLINE</span>' : 
+                           `<span style="color:var(--text-muted); font-weight: 500;">${pMode}</span>`;
+
+            return `
             <tr>
                 <td style="font-family: monospace; font-weight: 700; color: var(--text-main); font-size: 0.95rem;">${inv.seq_no}</td>
                 <td>${new Date(inv.created_at).toLocaleDateString()} <span style="color:var(--text-muted); font-size:0.8rem;">${new Date(inv.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span></td>
@@ -321,11 +345,8 @@ export async function renderInvoices(container) {
                     ${inv.students ? inv.students.first_name + ' ' + inv.students.last_name : 'Unknown Student'}<br>
                     <small style="color: var(--primary);">Class: ${inv.students ? inv.students.grade_section : 'N/A'}</small>
                 </td>
-                <td>
-                    <span class="status-badge ${(inv.status && inv.status.startsWith('PAID')) ? 'status-success' : inv.status === 'RETURNED' ? 'status-error' : 'status-warning'}" ${inv.status === 'RETURNED' ? 'style="background: #FEE2E2; color: #EF4444;"' : ''} ${inv.status === 'UPDATED' ? 'style="background: #FEF3C7; color: #D97706;"' : ''}>
-                        ${(inv.status && inv.status.startsWith('PAID')) ? ('💵 ' + String(inv.status).replace('_', ' ')) : inv.status === 'RETURNED' ? '🔄 RETURNED' : inv.status === 'UPDATED' ? '📝 UPDATED' : '⏳ PENDING'}
-                    </span>
-                </td>
+                <td>${statusBadge}</td>
+                <td>${pmText}</td>
                 <td style="font-weight: 700;">₹${Number(inv.total_amount).toFixed(2)}</td>
                 <td>
                     ${inv.notes ? `<div style="font-size: 0.8rem; color: #EF4444; font-weight: bold; max-width: 200px; line-height: 1.3;">${String(inv.notes).replace(/\\n/g, '<br>')}</div>` : '<span style="color:#CBD5E1;">-</span>'}
@@ -334,11 +355,11 @@ export async function renderInvoices(container) {
                     <div style="display: flex; gap: 8px;">
                         <button class="btn btn-secondary view-btn" data-id="${inv.id}" style="padding: 6px 10px; font-size: 0.85rem;" title="View Items"><i class="ph ph-list-dashes"></i></button>
                         <button class="btn btn-secondary receipt-btn" data-id="${inv.id}" style="padding: 6px 10px; font-size: 0.85rem;" title="View Thermal Receipt"><i class="ph ph-receipt"></i></button>
-                        ${(inv.status === 'PENDING' || inv.status === 'UNPAID') ? `<button class="btn btn-primary mark-paid-btn" data-id="${inv.id}" style="padding: 6px 10px; font-size: 0.85rem; background:#10B981; border:none;" title="Mark Paid & Deduct Stock"><i class="ph ph-check-circle"></i> Mark Paid</button>` : ''}
+                        ${(logicalStatus === 'PENDING' || logicalStatus === 'UNPAID') ? `<button class="btn btn-primary mark-paid-btn" data-id="${inv.id}" style="padding: 6px 10px; font-size: 0.85rem; background:#10B981; border:none;" title="Mark Paid & Deduct Stock"><i class="ph ph-check-circle"></i> Mark Paid</button>` : ''}
                     </div>
                 </td>
-            </tr>
-        `).join('');
+            </tr>`;
+        }).join('');
 
         // View Items Modal Logic
         document.querySelectorAll('.view-btn').forEach(btn => {
@@ -404,10 +425,12 @@ export async function renderInvoices(container) {
 
                             showConfirm(
                                 'Process Return', 
-                                `Are you sure you want to return ALL <b>${returnQty}</b> of this item?<br><br>This will naturally update the current invoice, deduct the total, and smoothly generate a corresponding Return Record while restoring your inventory stock.`,
+                                `Are you sure you want to return ALL <b>${returnQty}</b> of this item?<br><br>This will naturally update the current invoice, deduct the total, and smoothly generate a corresponding Return Record while restoring your inventory stock.<br><br><label style="font-size:0.9rem; font-weight:600; display:block; margin-bottom: 5px;">Payment Mode (Revised Bill):</label><select id="return-payment-mode-select" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); outline: none; background: white;"><option value="Cash">Cash</option><option value="Online">Online</option></select>`,
                                 'Yes, Return Item',
                                 '#EF4444',
                                 async () => {
+                                    const pmSelect = document.getElementById('return-payment-mode-select');
+                                    const customPayMode = pmSelect ? pmSelect.value : 'Cash';
                                     btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i>';
                                     btn.disabled = true;
 
@@ -444,12 +467,12 @@ export async function renderInvoices(container) {
                                     await supabase.from('invoice_items').delete().eq('invoice_id', invId);
                                     await supabase.from('invoices').delete().eq('id', invId);
 
-                                    // 3. Create the NEW Invoice exclusively for the REMAINING Purchase items natively asserting the 'RETURNED' status
+                                    // 3. Create the NEW Invoice for the REMAINING items, preserving the original payment mode
                                     const { data: retInv, error: retErr } = await supabase.from('invoices').insert({
                                         student_id: targetInv.student_id,
                                         school_id: targetInv.school_id,
                                         total_amount: Math.max(0, newTotal),
-                                        status: 'RETURNED'
+                                        status: 'RETURNED_' + customPayMode
                                     }).select('id').single();
 
                                     if (retInv) {
@@ -510,10 +533,12 @@ export async function renderInvoices(container) {
                             
                             showConfirm(
                                 'Add More Quantity',
-                                `How many additional units of <b>${prodName}</b> would you like to add to this invoice? <br><br><input type="number" id="extra-add-qty" min="1" value="1" style="width:100%; padding: 10px; margin-top:10px; border-radius: 8px; border: 1px solid var(--border);">`,
+                                `How many additional units of <b>${prodName}</b> would you like to add to this invoice? <br><br><input type="number" id="extra-add-qty" min="1" value="1" style="width:100%; padding: 10px; margin-top:10px; border-radius: 8px; border: 1px solid var(--border);"><br><br><label style="font-size:0.9rem; font-weight:600; display:block; margin-bottom: 5px;">Payment Mode (Revised Bill):</label><select id="add-payment-mode-select" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); outline: none; background: white;"><option value="Cash">Cash</option><option value="Online">Online</option></select>`,
                                 'Add Quantity',
                                 '#3B82F6',
                                 async () => {
+                                    const pmSelect = document.getElementById('add-payment-mode-select');
+                                    const customPayMode = pmSelect ? pmSelect.value : 'Cash';
                                     const inputVal = document.getElementById('extra-add-qty');
                                     let addQty = parseInt(inputVal ? inputVal.value : 1) || 1;
                                     if(addQty <= 0) return;
@@ -570,7 +595,7 @@ export async function renderInvoices(container) {
                                             student_id: curInvTemp.student_id,
                                             school_id: curInvTemp.school_id,
                                             total_amount: newTotal,
-                                            status: 'UPDATED'
+                                            status: 'UPDATED_' + customPayMode
                                         }).select('id').single();
 
                                         const newlyCreatedId = newInv.id;
@@ -639,10 +664,12 @@ export async function renderInvoices(container) {
 
                             showConfirm(
                                 'Add New Item',
-                                `Are you sure you want to add ${addQty}x <b>${option.getAttribute('data-name')}</b> to this invoice?`,
+                                `Are you sure you want to add ${addQty}x <b>${option.getAttribute('data-name')}</b> to this invoice?<br><br><label style="font-size:0.9rem; font-weight:600; display:block; margin-bottom: 5px;">Payment Mode (Revised Bill):</label><select id="add-new-payment-mode-select" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); outline: none; background: white;"><option value="Cash">Cash</option><option value="Online">Online</option></select>`,
                                 'Add Item',
                                 '#3B82F6',
                                 async () => {
+                                    const pmSelect = document.getElementById('add-new-payment-mode-select');
+                                    const customPayMode = pmSelect ? pmSelect.value : 'Cash';
                                     newBtnClone.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Adding...';
                                     newBtnClone.disabled = true;
                                     
@@ -698,7 +725,7 @@ export async function renderInvoices(container) {
                                             student_id: curInvTemp.student_id,
                                             school_id: curInvTemp.school_id,
                                             total_amount: newTotal,
-                                            status: 'UPDATED'
+                                            status: 'UPDATED_' + customPayMode
                                         }).select('id').single();
 
                                         const newlyCreatedId = newInv.id;
@@ -768,7 +795,7 @@ export async function renderInvoices(container) {
                     const inv = allInvoices.find(i => i.id === id);
                     const { data: lines } = await supabase.from('invoice_items').select('*').eq('invoice_id', id);
                     
-                    import('../utils/receipt.js?v=printable_v6').then(m => {
+                    import('../utils/receipt.js?v=printable_v8').then(m => {
                         m.showReceiptModal({
                             id: inv.id,
                             student_id: inv.student_id,
@@ -975,7 +1002,7 @@ export async function generateExcelForInvoices(filtered) {
             return idxA - idxB;
         });
 
-        const headerRow = ["Sr No", "Name Of Student", "Class", "Payment Mode", ...classHeadersVector, "Total"];
+        const headerRow = ["Sr No", "Date & Time", "Name Of Student", "Class", "Status", "Payment Mode", ...classHeadersVector, "Total"];
         const wsData = [headerRow];
 
         // 3. Build Class Rows
@@ -983,11 +1010,22 @@ export async function generateExcelForInvoices(filtered) {
             const studentName = inv.students ? `${inv.students.first_name || ''} ${inv.students.last_name || ''}`.trim() : 'Unknown';
             
             let payMode = 'N/A';
-            if (inv.status && inv.status.startsWith('PAID_')) payMode = inv.status.split('_')[1];
-            else if (inv.status === 'UPDATED') payMode = 'AUTO-DEDUCT';
-            else if (inv.status === 'PAID') payMode = 'UNDEFINED';
+            let logicalStatus = inv.status || 'PENDING';
+            if (inv.status && inv.status.includes('_')) {
+                const parts = inv.status.split('_');
+                logicalStatus = parts[0];
+                payMode = parts[1];
+            } else if (inv.status === 'PAID') {
+                payMode = 'UNKNOWN';
+            }
 
-            const row = [index + 1, studentName.toUpperCase(), grade, payMode.toUpperCase()];
+            let dtStr = '';
+            if (inv.created_at) {
+                const dateObj = new Date(inv.created_at);
+                dtStr = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+
+            const row = [index + 1, dtStr, studentName.toUpperCase(), grade, logicalStatus.toUpperCase(), payMode.toUpperCase()];
             
             const invItems = itemsChunks.filter(li => String(li.invoice_id).toLowerCase() === String(inv.id).toLowerCase());
             const itemMap = {};
@@ -1014,9 +1052,10 @@ export async function generateExcelForInvoices(filtered) {
         
         const colWidths = headerRow.map(h => ({ wch: Math.max(15, h.length + 2) }));
         colWidths[0] = { wch: 8 };   // Sr No 
-        colWidths[1] = { wch: 30 };  // Student Name
-        colWidths[2] = { wch: 15 };  // Class
-        colWidths[3] = { wch: 15 };  // Payment Mode
+        colWidths[1] = { wch: 22 };  // Date & Time
+        colWidths[2] = { wch: 30 };  // Student Name
+        colWidths[3] = { wch: 15 };  // Class
+        colWidths[4] = { wch: 15 };  // Payment Mode
         ws["!cols"] = colWidths;
 
         for (let c = 0; c < headerRow.length; c++) {
@@ -1050,10 +1089,8 @@ export async function generateExcelForInvoices(filtered) {
         let val = Number(inv.total_amount) || 0;
         let payMode = 'OTHER';
         
-        if (inv.status && inv.status.startsWith('PAID_')) {
+        if (inv.status && inv.status.includes('_')) {
             payMode = inv.status.split('_')[1].toUpperCase();
-        } else if (inv.status === 'UPDATED' || inv.status === 'RETURNED') {
-            payMode = 'OTHER';
         }
 
         if (payMode === 'CASH') totalCash += val;

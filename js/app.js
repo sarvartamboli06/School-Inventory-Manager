@@ -1,4 +1,4 @@
-import { router } from './router.js?v=1000';
+import { router } from './router.js?v=1001';
 import { isSupabaseConfigured, supabase } from './supabase.js?v=1000';
 
 // Global Notification Engine initialized at Boot

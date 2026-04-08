@@ -193,8 +193,8 @@ export async function renderInventory(container) {
         const paginated = filtered.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
         tbody.innerHTML = paginated.map(item => {
-            const totalCount = item.total_stock ?? 100;
-            const remainingCount = item.remaining_stock ?? 100;
+            const totalCount = item.total_stock ?? 0;
+            const remainingCount = item.remaining_stock ?? 0;
             return `
             <tr>
                 <td style="font-weight: 700; color: var(--primary); font-size: 1.1rem;"><i class="ph ph-books"></i> ${item['Class']}</td>
@@ -259,8 +259,8 @@ export async function renderInventory(container) {
 
         if (existing) {
             const { error } = await supabase.from('Stationery Details').update({
-                total_stock: (existing.total_stock ?? 100) + totalItems,
-                remaining_stock: (existing.remaining_stock ?? 100) + totalItems
+                total_stock: (existing.total_stock ?? 0) + totalItems,
+                remaining_stock: (existing.remaining_stock ?? 0) + totalItems
             }).eq('id', existing.id);
             
             if (error) showToast('Error updating item: ' + error.message, 'error');
@@ -336,8 +336,8 @@ export async function renderInventory(container) {
                                     
                                 if (existing) {
                                     await supabase.from('Stationery Details').update({
-                                        total_stock: (existing.total_stock ?? 100) + p.total_stock,
-                                        remaining_stock: (existing.remaining_stock ?? 100) + p.remaining_stock
+                                        total_stock: (existing.total_stock ?? 0) + p.total_stock,
+                                        remaining_stock: (existing.remaining_stock ?? 0) + p.remaining_stock
                                     }).eq('id', existing.id);
                                 } else {
                                     const { error: insertErr } = await supabase.from('Stationery Details').insert([{
@@ -417,8 +417,8 @@ export async function renderInventory(container) {
                     const excelData = classItems.map(item => ({
                         "Class": item.Class,
                         "Item Name": item['Book Name'],
-                        "Total Items": item.total_stock ?? 100,
-                        "Remaining Units": item.remaining_stock ?? 100
+                        "Total Items": item.total_stock ?? 0,
+                        "Remaining Units": item.remaining_stock ?? 0
                     }));
 
                     const worksheet = XLSX.utils.json_to_sheet(excelData);
