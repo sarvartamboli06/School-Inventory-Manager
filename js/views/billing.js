@@ -212,7 +212,7 @@ export async function renderBilling(container) {
         
         // Gather all individual legacy books aligning on normalized class names
         const classBooks = products.filter(p => p.type === 'BOOK' && normalizeClass(p.class) === targetClass);
-        cart.push(...classBooks.map(b => ({ ...b, qty: b.required_qty || 1 })));
+        cart.push(...classBooks.map(b => ({ ...b, qty: Math.min(b.stock_count, b.required_qty || 1) })));
 
         // We explicitly DO NOT push the Set tracker to the visible cart output here anymore!
         // It gets stealth-injected directly into the Database payload during final generation.
@@ -263,7 +263,8 @@ export async function renderBilling(container) {
             const iconClass = getDynamicIcon(item.name, item.type);
 
             return `
-            <div style="display: flex; flex-direction: column; align-items: center; padding: 16px 12px; border: 1px solid #E2E8F0; border-radius: 8px; background: white; text-align: center; position: relative;">
+            <div style="display: flex; flex-direction: column; align-items: center; padding: 16px 12px; border: 1px solid #E2E8F0; border-radius: 8px; background: white; text-align: center; position: relative; ${item.stock_count <= 0 ? 'opacity: 0.6;' : ''}">
+                ${item.stock_count <= 0 ? '<div style="position: absolute; top: -8px; right: -8px; background: #EF4444; color: white; font-size: 0.65rem; font-weight: 700; padding: 4px 8px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">OUT OF STOCK</div>' : ''}
                 <!-- Icon -->
                 <div style="font-size: 2rem; color: var(--primary); background: #EEF2FF; width: 48px; height: 48px; min-height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; margin-top: 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
                     <i class="ph ${iconClass}"></i>

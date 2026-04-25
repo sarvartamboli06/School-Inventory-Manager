@@ -266,20 +266,7 @@ export async function renderInventory(container) {
             if (error) showToast('Error updating item: ' + error.message, 'error');
             else showToast(`Aggregated ${totalItems} new items into existing stock for ${itemName}!`, 'success');
         } else {
-            const { error } = await supabase.from('Stationery Details').insert([{
-                school_id: schoolId,
-                "Sr No": Math.floor(Math.random() * 1000000000),
-                Class: upperClass,
-                "Book Name": itemName,
-                total_stock: totalItems,
-                remaining_stock: totalItems,
-                Qty: 1,
-                Rate: 0, // Default to 0 for dynamically added stock
-                Amount: 0 
-            }]);
-            
-            if (error) showToast('Error saving item: ' + error.message, 'error');
-            else showToast('Successfully registered new class item stock!', 'success');
+            showToast(`Cannot add stock: Book "${itemName}" not found in class "${upperClass}". Please import it via Books page first.`, 'error');
         }
 
         modal.style.display = 'none';
@@ -340,21 +327,10 @@ export async function renderInventory(container) {
                                         remaining_stock: (existing.remaining_stock ?? 0) + p.remaining_stock
                                     }).eq('id', existing.id);
                                 } else {
-                                    const { error: insertErr } = await supabase.from('Stationery Details').insert([{
-                                        school_id: p.school_id,
-                                        "Sr No": Math.floor(Math.random() * 1000000000),
-                                        Class: p.Class,
-                                        "Book Name": p["Book Name"],
-                                        total_stock: p.total_stock,
-                                        remaining_stock: p.remaining_stock,
-                                        Qty: 1,
-                                        Rate: 0,
-                                        Amount: 0
-                                    }]);
-                                    if (insertErr) throw new Error(insertErr.message);
+                                    console.warn(`Item not found for stock update: ${p['Book Name']} in class ${p.Class}. Ignoring.`);
                                 }
                             }
-                            showToast(`Successfully imported and mapped ${payload.length} item definitions globally!`, 'success');
+                            showToast(`Successfully updated stock for mapped items!`, 'success');
                         } catch(error) {
                             showToast('Error gracefully executing bulk import: ' + error.message, 'error');
                         }

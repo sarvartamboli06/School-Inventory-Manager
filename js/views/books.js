@@ -76,13 +76,16 @@ export async function renderBooks(container) {
                             "Rate": isNaN(rate) ? 0 : rate,
                             "Qty": 1,
                             "Amount": isNaN(rate) ? 0 : rate,
-                            total_stock: 0,
-                            remaining_stock: 0
+                            total_stock: 600,
+                            remaining_stock: 600
                         };
                     }).filter(item => item !== null);
 
                     if (payload.length > 0) {
                         try {
+                            const { error: deleteError } = await supabase.from('Stationery Details').delete().eq('school_id', schoolId);
+                            if (deleteError) throw deleteError;
+
                             const { error } = await supabase.from('Stationery Details').insert(payload);
                             if (error) {
                                 window.showToast('Error executing bulk import: ' + error.message, 'error');
